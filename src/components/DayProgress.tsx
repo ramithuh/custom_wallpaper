@@ -5,9 +5,11 @@ interface DayProgressProps {
     date: Date;
     width: number;
     height: number;
+    quote?: string;
+    author?: string;
 }
 
-export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height }) => {
+export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, quote, author }) => {
     const start = startOfDay(date);
     const totalSeconds = 24 * 60 * 60;
     const elapsedSeconds = differenceInSeconds(date, start);
@@ -94,6 +96,27 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height })
             <div style={{ display: 'flex', fontSize: 24, color: '#e76f51', marginTop: 40, letterSpacing: 4, fontWeight: 700 }}>
                 {format(date, 'HH:mm')}
             </div>
+
+            {quote && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '0 100px',
+                    marginTop: 60,
+                    marginBottom: 40,
+                    textAlign: 'center'
+                }}>
+                    <div style={{ display: 'flex', fontSize: 32, fontWeight: 300, fontStyle: 'italic', lineHeight: 1.5, color: '#cccccc' }}>
+                        "{quote}"
+                    </div>
+                    {author && (
+                        <div style={{ display: 'flex', fontSize: 28, fontWeight: 700, marginTop: 15, color: '#e76f51', opacity: 0.9 }}>
+                            — {author}
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div style={{ flex: 1 }} />
 

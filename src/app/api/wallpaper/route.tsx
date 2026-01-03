@@ -55,9 +55,26 @@ export async function GET(req: NextRequest) {
         case 1:
             element = <MonthlyView date={now} width={width} height={height} />;
             break;
-        case 2:
-            element = <DayProgress date={now} width={width} height={height} />;
+        case 2: {
+            let quote = undefined;
+            let author = undefined;
+            try {
+                const response = await fetch('https://zenquotes.io/api/random', {
+                    next: { revalidate: 3600 } // Cache for 1 hour to be polite
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        quote = data[0].q;
+                        author = data[0].a;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching quote:', error);
+            }
+            element = <DayProgress date={now} width={width} height={height} quote={quote} author={author} />;
             break;
+        }
         default:
             element = <YearlyView date={now} width={width} height={height} />;
     }
