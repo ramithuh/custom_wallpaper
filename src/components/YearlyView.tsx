@@ -13,14 +13,15 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
     const days = eachDayOfInterval({ start, end });
     const currentDay = date;
 
-    const dotsPerRow = 14;
-    const numRows = Math.ceil(days.length / dotsPerRow);
-
     // Adaptive scaling based on aspect ratio
     const isPortrait = height > width;
 
-    // Top Padding: 30% for portrait is enough to clear the clock while allowing a larger grid
-    const verticalPadding = height * (isPortrait ? 0.3 : 0.18);
+    // 26 dots for landscape (iPad), 14 for portrait (iPhone/iPad Portrait)
+    const dotsPerRow = isPortrait ? 14 : 26;
+    const numRows = Math.ceil(days.length / dotsPerRow);
+
+    // Top Padding: 30% for portrait, 25% for landscape (iPad clock is typically centered/top)
+    const verticalPadding = height * (isPortrait ? 0.3 : 0.25);
 
     // Grid bounds
     const gridMaxHeight = height * (isPortrait ? 0.58 : 0.65);
@@ -29,8 +30,8 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
     const dotSizeFromHeight = Math.floor(gridMaxHeight / (numRows * 1.4));
     const dotSizeFromWidth = Math.floor(gridMaxWidth / (dotsPerRow * 1.4));
 
-    // Adaptive dot sizing - allow it to be larger on high-res portrait
-    const dotSize = Math.min(dotSizeFromHeight, dotSizeFromWidth, isPortrait ? 70 : 40);
+    // Adaptive dot sizing
+    const dotSize = Math.min(dotSizeFromHeight, dotSizeFromWidth, isPortrait ? 70 : 50);
 
     const gap = Math.floor(dotSize * 0.4);
 
