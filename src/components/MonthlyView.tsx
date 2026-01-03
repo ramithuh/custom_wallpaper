@@ -29,7 +29,7 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
     const dotsPerRow = 7;
 
     // Card Width: 
-    const cardWidth = isPortrait ? width * 0.9 : Math.min(width * 0.8, 1000);
+    const cardWidth = isPortrait ? width * 0.9 : Math.min(width * 0.7, 1000);
 
     // Available width for the grid after internal padding
     const availableGridWidth = cardWidth - (internalPadding * 2);

@@ -23,9 +23,9 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
     // Top Padding: 32% is the safe zone for large clocks (iPhone & iPad)
     const verticalPadding = height * 0.32;
 
-    // Grid bounds
-    const gridMaxHeight = height * (isPortrait ? 0.58 : 0.65);
-    const gridMaxWidth = width * 0.95;
+    // Grid bounds - more compact for landscape iPad
+    const gridMaxHeight = height * (isPortrait ? 0.58 : 0.55);
+    const gridMaxWidth = width * (isPortrait ? 0.95 : 0.85);
 
     const dotSizeFromHeight = Math.floor(gridMaxHeight / (numRows * 1.4));
     const dotSizeFromWidth = Math.floor(gridMaxWidth / (dotsPerRow * 1.4));
