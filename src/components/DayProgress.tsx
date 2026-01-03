@@ -15,8 +15,13 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
     const elapsedSeconds = differenceInSeconds(date, start);
     const percentage = ((elapsedSeconds / totalSeconds) * 100).toFixed(2);
 
-    const size = Math.floor(width * 0.6);
-    const strokeWidth = 50;
+    // Adaptive sizing
+    const isWider = width / height > 0.7;
+    const verticalPadding = height * (isWider ? 0.2 : 0.25);
+
+    // Circle size based on screen dimensions
+    const size = Math.min(Math.floor(width * 0.6), Math.floor(height * 0.35), 600);
+    const strokeWidth = Math.floor(size * 0.08);
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (parseFloat(percentage) / 100) * circumference;
@@ -33,7 +38,7 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                 backgroundColor: '#1a1a1a',
                 color: '#ffffff',
                 fontFamily: 'Inter',
-                paddingTop: height * 0.25, // Unified padding start
+                paddingTop: verticalPadding,
             }}
         >
             <div style={{ flex: 1 }} />
@@ -89,7 +94,7 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                         justifyContent: 'center',
                     }}
                 >
-                    <div style={{ display: 'flex', fontSize: 100, fontWeight: 700 }}>{Math.floor(parseFloat(percentage))}%</div>
+                    <div style={{ display: 'flex', fontSize: size * 0.25, fontWeight: 700 }}>{Math.floor(parseFloat(percentage))}%</div>
                 </div>
             </div>
 
@@ -102,7 +107,7 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    padding: '0 100px',
+                    padding: isWider ? '0 200px' : '0 100px',
                     marginTop: 60,
                     marginBottom: 40,
                     textAlign: 'center'

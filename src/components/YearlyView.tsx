@@ -12,16 +12,22 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
     const end = endOfYear(date);
     const days = eachDayOfInterval({ start, end });
     const currentDay = date;
-    const nextDay = addDays(date, 1);
 
     const dotsPerRow = 14;
     const numRows = Math.ceil(days.length / dotsPerRow);
 
-    const availableHeight = height * 0.7 - 100;
-    const dotSizeFromHeight = Math.floor(availableHeight / (numRows * 1.4));
-    const dotSizeFromWidth = Math.floor((width * 0.9) / 19.2);
+    // Adaptive scaling based on aspect ratio
+    const isWider = width / height > 0.7; // Typical iPad/Tablet aspect ratio
+    const verticalPadding = height * (isWider ? 0.2 : 0.25);
 
-    const dotSize = Math.min(dotSizeFromHeight, dotSizeFromWidth);
+    // We want the grid to occupy most of the width but not too much height
+    const gridMaxHeight = height * 0.6;
+    const gridMaxWidth = width * 0.9;
+
+    const dotSizeFromHeight = Math.floor(gridMaxHeight / (numRows * 1.4));
+    const dotSizeFromWidth = Math.floor(gridMaxWidth / (dotsPerRow * 1.4));
+    const dotSize = Math.min(dotSizeFromHeight, dotSizeFromWidth, 40); // Cap size at 40
+
     const gap = Math.floor(dotSize * 0.4);
 
     const totalWidth = dotsPerRow * dotSize + (dotsPerRow - 1) * gap;
@@ -42,7 +48,7 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
                 backgroundColor: '#1a1a1a',
                 color: '#ffffff',
                 fontFamily: 'Inter',
-                paddingTop: height * 0.25,
+                paddingTop: verticalPadding,
             }}
         >
             <div
@@ -65,11 +71,11 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
                     }}
                 >
                     {days.map((day, i) => {
-                        let color = '#333333'; // Future days dark gray
+                        let color = '#333333'; // Future
                         if (day < currentDay && !isSameDay(day, currentDay)) {
-                            color = '#ffffff'; // Past days white
+                            color = '#ffffff'; // Past
                         } else if (isSameDay(day, currentDay)) {
-                            color = '#e76f51'; // Current day coral orange
+                            color = '#e76f51'; // Today
                         }
 
                         return (
@@ -112,6 +118,7 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
                             padding: '40px 60px',
                             borderRadius: '40px',
                             border: '1px solid rgba(255, 255, 255, 0.1)',
+                            backdropFilter: 'blur(10px)',
                         }}
                     >
                         <div style={{ display: 'flex', fontSize: 140, fontWeight: 700, color: '#ffffff', lineHeight: 1 }}>
@@ -129,7 +136,7 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
 
             <div
                 style={{
-                    marginBottom: 100, // Safe area for focus/camera icons
+                    marginBottom: 100,
                     display: 'flex',
                     fontSize: 32,
                     fontWeight: 400,

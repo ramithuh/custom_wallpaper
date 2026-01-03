@@ -40,6 +40,18 @@ To get a monthly calendar for someone in New York:
 
 ---
 
+## Device Specifics
+
+### iPhone
+Optimal resolution: `1179 x 2556` (Portrait). Elements are positioned with safe areas for the top clock and bottom focus icons.
+
+### iPad Pro 11-inch (M4/M5)
+Optimal resolution: `2388 x 1668`.
+Wallpapers are designed with a **Centralized Focal Area** to ensure content remains visible in both Portrait and Landscape orientations. 
+URL Example: `https://your-domain.com/api/wallpaper?width=2388&height=1668&view=daily`
+
+---
+
 ## iOS Automation Setup (Every 15 Minutes)
 
 Because iOS does not natively support "every 15 minutes" triggers, you must use a **Focus Mode Loop** to keep the service running reliably in the background.

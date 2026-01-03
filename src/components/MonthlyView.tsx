@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-    format,
-    startOfMonth,
-    endOfMonth,
-    eachDayOfInterval,
-    isSameDay,
-    addDays,
-    getDay,
-    differenceInSeconds,
-} from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay } from 'date-fns';
 
 interface MonthlyViewProps {
     date: Date;
@@ -17,29 +8,26 @@ interface MonthlyViewProps {
 }
 
 export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height }) => {
-    const start = startOfMonth(date);
-    const end = endOfMonth(date);
-    const daysInMonth = eachDayOfInterval({ start, end });
-    const currentDay = date;
-    const nextDay = addDays(date, 1);
-
-    const dotsPerRow = 7;
-    const dotSize = Math.floor((width * 0.75) / (dotsPerRow + (dotsPerRow - 1) * 0.4));
-    const gap = Math.floor(dotSize * 0.4);
-
-    const totalWidth = dotsPerRow * dotSize + (dotsPerRow - 1) * gap;
-
-    // Adjust to Monday start (M T W T F S S)
-    const startDayPadding = (getDay(start) + 6) % 7;
-
-    const headers = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-
-    // Percentage calculation
     const monthStart = startOfMonth(date);
     const monthEnd = endOfMonth(date);
-    const totalSeconds = differenceInSeconds(monthEnd, monthStart);
-    const elapsedSeconds = differenceInSeconds(date, monthStart);
-    const percentage = ((elapsedSeconds / totalSeconds) * 100).toFixed(2);
+    const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+    const monthName = format(date, 'MMMM');
+    const year = format(date, 'yyyy');
+
+    // Adaptive scaling based on aspect ratio
+    const isWider = width / height > 0.7; // iPad detection
+    const verticalPadding = height * (isWider ? 0.2 : 0.25);
+
+    // Grid settings
+    const colNames = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const dotsPerRow = 7;
+
+    const cardWidth = Math.min(width * 0.85, 800);
+    const dotSize = Math.floor(cardWidth / 10);
+    const gap = Math.floor(dotSize * 0.4);
+
+    const gridWidth = dotsPerRow * dotSize + (dotsPerRow - 1) * gap;
 
     return (
         <div
@@ -53,12 +41,10 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                 backgroundColor: '#1a1a1a',
                 color: '#ffffff',
                 fontFamily: 'Inter',
-                paddingTop: height * 0.25, // Space for clock
+                paddingTop: verticalPadding,
             }}
         >
-            {/* Spacer to help center the card in the remaining space */}
-            <div style={{ flex: 1 }} />
-
+            {/* Monthly Card Widget */}
             <div
                 style={{
                     display: 'flex',
@@ -67,37 +53,40 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                     backgroundColor: 'rgba(255, 255, 255, 0.03)',
                     padding: '60px 40px',
                     borderRadius: '60px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    width: cardWidth,
                 }}
             >
-                <div style={{ display: 'flex', fontSize: 48, fontWeight: 700, marginBottom: 50, color: '#ffffff' }}>
-                    {format(date, 'MMMM yyyy').toUpperCase()}
+                <div style={{ display: 'flex', fontSize: 48, fontWeight: 700, color: '#e76f51', letterSpacing: 4, marginBottom: 10 }}>
+                    {monthName.toUpperCase()}
+                </div>
+                <div style={{ display: 'flex', fontSize: 24, fontWeight: 400, color: '#666666', letterSpacing: 8, marginBottom: 60 }}>
+                    {year}
                 </div>
 
-                {/* Headers */}
+                {/* Day Headers - Precisely Aligned */}
                 <div
                     style={{
                         display: 'flex',
-                        width: totalWidth,
-                        justifyContent: 'flex-start',
-                        marginBottom: 30,
+                        width: gridWidth,
+                        justifyContent: 'space-between',
+                        marginBottom: gap,
+                        padding: '0 2px', // Micro-adjustment for visual centering
                     }}
                 >
-                    {headers.map((h, i) => (
+                    {colNames.map((day, i) => (
                         <div
                             key={i}
                             style={{
                                 display: 'flex',
                                 width: dotSize,
                                 justifyContent: 'center',
-                                alignItems: 'center',
-                                fontSize: 32,
+                                fontSize: 24,
                                 fontWeight: 700,
-                                color: '#e76f51',
-                                marginRight: i === headers.length - 1 ? 0 : gap,
+                                color: '#444444',
                             }}
                         >
-                            {h}
+                            {day}
                         </div>
                     ))}
                 </div>
@@ -107,12 +96,12 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                     style={{
                         display: 'flex',
                         flexWrap: 'wrap',
-                        width: totalWidth,
+                        width: gridWidth,
                         justifyContent: 'flex-start',
-                        alignContent: 'flex-start',
                     }}
                 >
-                    {Array.from({ length: startDayPadding }).map((_, i) => (
+                    {/* Padding for first day of month */}
+                    {Array.from({ length: (getDay(monthStart) + 6) % 7 }).map((_, i) => (
                         <div
                             key={`pad-${i}`}
                             style={{
@@ -123,13 +112,13 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                             }}
                         />
                     ))}
-                    {daysInMonth.map((day, i) => {
-                        const index = i + startDayPadding;
+                    {days.map((day, i) => {
+                        const totalIdx = i + (getDay(monthStart) + 6) % 7;
                         let color = '#333333'; // Future
-                        if (day < currentDay && !isSameDay(day, currentDay)) {
+                        if (day < date && !isSameDay(day, date)) {
                             color = '#ffffff'; // Past
-                        } else if (isSameDay(day, currentDay)) {
-                            color = '#e76f51'; // Current
+                        } else if (isSameDay(day, date)) {
+                            color = '#e76f51'; // Today
                         }
 
                         return (
@@ -140,7 +129,7 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                                     height: dotSize,
                                     borderRadius: '50%',
                                     backgroundColor: color,
-                                    marginRight: (index + 1) % dotsPerRow === 0 ? 0 : gap,
+                                    marginRight: (totalIdx + 1) % dotsPerRow === 0 ? 0 : gap,
                                     marginBottom: gap,
                                 }}
                             />
@@ -149,19 +138,18 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                 </div>
             </div>
 
-            {/* Bottom Spacer to keep it balanced */}
             <div style={{ flex: 1 }} />
 
             <div
                 style={{
-                    marginBottom: 100, // Safe area for focus/camera icons
+                    marginBottom: 100,
                     display: 'flex',
                     fontSize: 32,
                     fontWeight: 400,
                     color: '#999999',
                 }}
             >
-                {percentage}% OF MONTH PASSED
+                {((days.filter(d => d <= date).length / days.length) * 100).toFixed(2)}% OF MONTH PASSED
             </div>
         </div>
     );
