@@ -91,7 +91,8 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                                 justifyContent: 'center',
                                 fontSize: isPortrait ? 32 : 24,
                                 fontWeight: 700,
-                                color: '#444444',
+                                color: '#e76f51',
+                                opacity: 0.8,
                             }}
                         >
                             {day}
