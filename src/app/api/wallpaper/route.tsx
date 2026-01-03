@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
         now = new Date();
     }
     const minutes = now.getMinutes();
-    const shufflingInterval = 15;
+    const shufflingInterval = 10;
     let viewIndex = Math.floor(minutes / shufflingInterval) % 3;
 
     // Override with view parameter if provided
