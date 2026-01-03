@@ -1,5 +1,5 @@
 import React from 'react';
-import { startOfYear, endOfYear, eachDayOfInterval, isSameDay, addDays } from 'date-fns';
+import { startOfYear, endOfYear, eachDayOfInterval, isSameDay } from 'date-fns';
 
 interface YearlyViewProps {
     date: Date;
@@ -17,16 +17,18 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
     const numRows = Math.ceil(days.length / dotsPerRow);
 
     // Adaptive scaling based on aspect ratio
-    const isWider = width / height > 0.7; // Typical iPad/Tablet aspect ratio
-    const verticalPadding = height * (isWider ? 0.2 : 0.25);
+    const isPortrait = height > width;
+    const verticalPadding = height * (isPortrait ? 0.22 : 0.18);
 
-    // We want the grid to occupy most of the width but not too much height
-    const gridMaxHeight = height * 0.6;
-    const gridMaxWidth = width * 0.9;
+    // Grid bounds
+    const gridMaxHeight = height * 0.65;
+    const gridMaxWidth = width * 0.95;
 
-    const dotSizeFromHeight = Math.floor(gridMaxHeight / (numRows * 1.4));
-    const dotSizeFromWidth = Math.floor(gridMaxWidth / (dotsPerRow * 1.4));
-    const dotSize = Math.min(dotSizeFromHeight, dotSizeFromWidth, 40); // Cap size at 40
+    const dotSizeFromHeight = Math.floor(gridMaxHeight / (numRows * 1.5));
+    const dotSizeFromWidth = Math.floor(gridMaxWidth / (dotsPerRow * 1.5));
+
+    // Increase cap for high-res portrait (iPhone 17)
+    const dotSize = Math.min(dotSizeFromHeight, dotSizeFromWidth, isPortrait ? 60 : 40);
 
     const gap = Math.floor(dotSize * 0.4);
 
@@ -115,16 +117,16 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
                             alignItems: 'center',
                             justifyContent: 'center',
                             backgroundColor: 'rgba(26, 26, 26, 0.85)',
-                            padding: '40px 60px',
-                            borderRadius: '40px',
+                            padding: isPortrait ? '50px 70px' : '40px 60px',
+                            borderRadius: '50px',
                             border: '1px solid rgba(255, 255, 255, 0.1)',
                             backdropFilter: 'blur(10px)',
                         }}
                     >
-                        <div style={{ display: 'flex', fontSize: 140, fontWeight: 700, color: '#ffffff', lineHeight: 1 }}>
+                        <div style={{ display: 'flex', fontSize: isPortrait ? 180 : 140, fontWeight: 700, color: '#ffffff', lineHeight: 1 }}>
                             {daysLeft}
                         </div>
-                        <div style={{ display: 'flex', fontSize: 32, fontWeight: 700, color: '#e76f51', letterSpacing: 8, marginTop: 10 }}>
+                        <div style={{ display: 'flex', fontSize: isPortrait ? 40 : 32, fontWeight: 700, color: '#e76f51', letterSpacing: 8, marginTop: 10 }}>
                             DAYS LEFT
                         </div>
                     </div>

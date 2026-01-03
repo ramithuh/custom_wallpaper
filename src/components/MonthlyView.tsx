@@ -16,15 +16,23 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
     const year = format(date, 'yyyy');
 
     // Adaptive scaling based on aspect ratio
-    const isWider = width / height > 0.7; // iPad detection
-    const verticalPadding = height * (isWider ? 0.2 : 0.25);
+    const isPortrait = height > width;
+    const isWider = !isPortrait && width / height > 1.2; // True iPad/Landscape
+
+    // Vertical padding: Less padding for portrait to let the content breathe in the middle
+    const verticalPadding = height * (isPortrait ? 0.22 : 0.18);
 
     // Grid settings
     const colNames = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     const dotsPerRow = 7;
 
-    const cardWidth = Math.min(width * 0.85, 800);
-    const dotSize = Math.floor(cardWidth / 10);
+    // Card Width: 
+    // - Portrait: take 90% of width (looks full and premium on mobile)
+    // - Landscape: cap at 80% or 1000px (prevents it from being too wide)
+    const cardWidth = isPortrait ? width * 0.9 : Math.min(width * 0.8, 1000);
+
+    // Determine dot size based on card width
+    const dotSize = Math.floor(cardWidth / 9.5);
     const gap = Math.floor(dotSize * 0.4);
 
     const gridWidth = dotsPerRow * dotSize + (dotsPerRow - 1) * gap;
@@ -51,16 +59,16 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                     flexDirection: 'column',
                     alignItems: 'center',
                     backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                    padding: '60px 40px',
-                    borderRadius: '60px',
+                    padding: `${isPortrait ? '80px' : '60px'} 40px`,
+                    borderRadius: '80px',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                     width: cardWidth,
                 }}
             >
-                <div style={{ display: 'flex', fontSize: 48, fontWeight: 700, color: '#e76f51', letterSpacing: 4, marginBottom: 10 }}>
+                <div style={{ display: 'flex', fontSize: isPortrait ? 64 : 48, fontWeight: 700, color: '#e76f51', letterSpacing: 4, marginBottom: 10 }}>
                     {monthName.toUpperCase()}
                 </div>
-                <div style={{ display: 'flex', fontSize: 24, fontWeight: 400, color: '#666666', letterSpacing: 8, marginBottom: 60 }}>
+                <div style={{ display: 'flex', fontSize: isPortrait ? 32 : 24, fontWeight: 400, color: '#666666', letterSpacing: 8, marginBottom: 60 }}>
                     {year}
                 </div>
 
@@ -71,7 +79,7 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                         width: gridWidth,
                         justifyContent: 'space-between',
                         marginBottom: gap,
-                        padding: '0 2px', // Micro-adjustment for visual centering
+                        padding: '0 2px',
                     }}
                 >
                     {colNames.map((day, i) => (
@@ -81,7 +89,7 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                                 display: 'flex',
                                 width: dotSize,
                                 justifyContent: 'center',
-                                fontSize: 24,
+                                fontSize: isPortrait ? 32 : 24,
                                 fontWeight: 700,
                                 color: '#444444',
                             }}
