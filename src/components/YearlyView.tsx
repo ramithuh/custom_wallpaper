@@ -19,18 +19,18 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
     // Adaptive scaling based on aspect ratio
     const isPortrait = height > width;
 
-    // Top Padding: 35% for portrait to clear the large iOS clock safely
-    const verticalPadding = height * (isPortrait ? 0.35 : 0.18);
+    // Top Padding: 30% for portrait is enough to clear the clock while allowing a larger grid
+    const verticalPadding = height * (isPortrait ? 0.3 : 0.18);
 
     // Grid bounds
-    const gridMaxHeight = height * (isPortrait ? 0.5 : 0.65);
+    const gridMaxHeight = height * (isPortrait ? 0.58 : 0.65);
     const gridMaxWidth = width * 0.95;
 
-    const dotSizeFromHeight = Math.floor(gridMaxHeight / (numRows * 1.5));
-    const dotSizeFromWidth = Math.floor(gridMaxWidth / (dotsPerRow * 1.5));
+    const dotSizeFromHeight = Math.floor(gridMaxHeight / (numRows * 1.4));
+    const dotSizeFromWidth = Math.floor(gridMaxWidth / (dotsPerRow * 1.4));
 
-    // Adaptive dot sizing
-    const dotSize = Math.min(dotSizeFromHeight, dotSizeFromWidth, isPortrait ? 60 : 40);
+    // Adaptive dot sizing - allow it to be larger on high-res portrait
+    const dotSize = Math.min(dotSizeFromHeight, dotSizeFromWidth, isPortrait ? 70 : 40);
 
     const gap = Math.floor(dotSize * 0.4);
 
