@@ -43,3 +43,8 @@ To get a monthly calendar for someone in New York:
 - **Rendering**: [Satori](https://github.com/vercel/satori) (React to SVG)
 - **Image Processing**: [Sharp](https://sharp.pixelplumbing.com/) (SVG to PNG)
 - **Typography**: Embedded Inter Font
+
+## Future Improvements
+
+- [ ] Refine layouts and scaling for different device screen sizes (tablets, different aspect ratio phones).
+- [ ] Add more style options (light mode, custom accent colors).
