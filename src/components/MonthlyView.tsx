@@ -18,8 +18,8 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
     // Adaptive scaling based on aspect ratio
     const isPortrait = height > width;
 
-    // Top Padding: 30% for portrait, 25% for landscape (clear iPad clock safely)
-    const verticalPadding = height * (isPortrait ? 0.3 : 0.25);
+    // Top Padding: 32% is the safe zone for large clocks (iPhone & iPad)
+    const verticalPadding = height * 0.32;
 
     // Internal Card Padding
     const internalPadding = isPortrait ? 80 : 40;

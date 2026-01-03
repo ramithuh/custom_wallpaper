@@ -20,8 +20,8 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height }) =
     const dotsPerRow = isPortrait ? 14 : 26;
     const numRows = Math.ceil(days.length / dotsPerRow);
 
-    // Top Padding: 30% for portrait, 25% for landscape (iPad clock is typically centered/top)
-    const verticalPadding = height * (isPortrait ? 0.3 : 0.25);
+    // Top Padding: 32% is the safe zone for large clocks (iPhone & iPad)
+    const verticalPadding = height * 0.32;
 
     // Grid bounds
     const gridMaxHeight = height * (isPortrait ? 0.58 : 0.65);
