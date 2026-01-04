@@ -54,9 +54,9 @@ export async function GET(req: NextRequest) {
     } catch (e) {
         now = new Date();
     }
-    const minutes = now.getMinutes();
-    const shufflingInterval = 15;
-    let viewIndex = Math.floor(minutes / shufflingInterval) % 3;
+    const totalSecondsInHour = now.getMinutes() * 60 + now.getSeconds();
+    const shufflingIntervalSeconds = 10;
+    let viewIndex = Math.floor(totalSecondsInHour / shufflingIntervalSeconds) % 3;
 
     // Override with view parameter if provided
     if (viewParam === 'yearly' || viewParam === 'year') viewIndex = 0;
