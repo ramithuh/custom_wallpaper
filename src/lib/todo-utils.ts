@@ -105,7 +105,6 @@ export function getInterpolatedColor(percentage: number, type: 'work' | 'fitness
     if (percentage <= 0) return 'rgba(255, 255, 255, 0.05)';
 
     const p = percentage / 100;
-    const p = percentage / 100;
     let h = 140; // Work: Neon Green
     let s_start = 60, s_end = 90;
     let l_start = 80, l_end = 40; // Darker end for better contrast
