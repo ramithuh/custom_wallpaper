@@ -19,11 +19,11 @@ const TrifectaDot = ({ size, colors, completion, isToday }: { size: number, colo
             {/* Work: Top Right */}
             <div style={{
                 position: 'absolute',
-                top: '-20%',
-                right: '-20%',
-                width: '80%',
-                height: '80%',
-                background: 'radial-gradient(circle, #00ff87 0%, transparent 70%)',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'radial-gradient(circle at 70% 30%, #00ff87 0%, transparent 60%)',
                 opacity: hasWork ? 0.8 + (completion!.work.percentage / 100) * 0.2 : 0,
                 filter: 'blur(3px)',
             }} />
@@ -31,11 +31,11 @@ const TrifectaDot = ({ size, colors, completion, isToday }: { size: number, colo
             {/* Mind: Top Left */}
             <div style={{
                 position: 'absolute',
-                top: '-20%',
-                left: '-20%',
-                width: '80%',
-                height: '80%',
-                background: 'radial-gradient(circle, #0061ff 0%, transparent 70%)',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'radial-gradient(circle at 30% 30%, #0061ff 0%, transparent 60%)',
                 opacity: hasMind ? 0.8 + (completion!.mind.percentage / 100) * 0.2 : 0,
                 filter: 'blur(3px)',
             }} />
@@ -43,11 +43,11 @@ const TrifectaDot = ({ size, colors, completion, isToday }: { size: number, colo
             {/* Fitness: Bottom */}
             <div style={{
                 position: 'absolute',
-                bottom: '-20%',
-                left: '20%',
-                width: '60%',
-                height: '80%',
-                background: 'radial-gradient(circle, #ff1b6b 0%, transparent 70%)',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'radial-gradient(circle at 50% 70%, #ff1b6b 0%, transparent 60%)',
                 opacity: hasFitness ? 0.8 + (completion!.fitness.percentage / 100) * 0.2 : 0,
                 filter: 'blur(3px)',
             }} />
