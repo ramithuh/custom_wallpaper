@@ -7,6 +7,7 @@ import { renderToPng } from '@/lib/render';
 import { YearlyView } from '@/components/YearlyView';
 import { MonthlyView } from '@/components/MonthlyView';
 import { DayProgress } from '@/components/DayProgress';
+import { getTodoCompletionMap } from '@/lib/todo-utils';
 
 const FALLBACK_QUOTES = [
     { q: "The only way to do great work is to love what you do.", a: "Steve Jobs" },
@@ -27,6 +28,9 @@ export async function GET(req: NextRequest) {
     const height = parseInt(searchParams.get('height') || '2556');
     const viewParam = searchParams.get('view');
     const tz = searchParams.get('tz') || 'UTC';
+
+    // Fetch todo completion data for Yearly/Monthly heatmap
+    const completionMap = await getTodoCompletionMap();
 
     let now: Date;
     try {
