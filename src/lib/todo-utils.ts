@@ -57,3 +57,19 @@ export async function getTodoCompletionMap(): Promise<TodoCompletionMap> {
 
     return completionMap;
 }
+export function getInterpolatedColor(percentage: number): string {
+    if (percentage <= 0) return 'rgba(255, 255, 255, 0.1)';
+
+    // Scale between Mint (Emerald 100ish) and Deep Emerald (Emerald 800ish)
+    // Percentage 1-100
+    const p = percentage / 100;
+
+    // Emerald Hue is ~160
+    // Saturation: 70% -> 90%
+    // Lightness: 85% -> 25%
+    const h = 160;
+    const s = Math.round(70 + (20 * p));
+    const l = Math.round(85 - (60 * p));
+
+    return `hsl(${h}, ${s}%, ${l}%)`;
+}

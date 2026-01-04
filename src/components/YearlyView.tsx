@@ -1,6 +1,5 @@
-import React from 'react';
 import { startOfYear, endOfYear, eachDayOfInterval, isSameDay, format } from 'date-fns';
-import { TodoCompletionMap } from '../lib/todo-utils';
+import { TodoCompletionMap, getInterpolatedColor } from '../lib/todo-utils';
 
 interface YearlyViewProps {
     date: Date;
@@ -80,17 +79,13 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height, com
                     {days.map((day, i) => {
                         const dateStr = format(day, 'yyyy-MM-dd');
                         const completion = completionMap?.[dateStr];
+                        const isToday = isSameDay(day, currentDay);
 
                         let color = '#333333'; // Future
-                        if (isSameDay(day, currentDay)) {
-                            color = '#e76f51'; // Today
-                        } else if (completion && completion.percentage > 0) {
-                            // Heatmap colors (Emerald)
-                            if (completion.percentage <= 33) color = '#34d399'; // Emerald 400
-                            else if (completion.percentage <= 66) color = '#10b981'; // Emerald 500
-                            else color = '#059669'; // Emerald 600
+                        if (isToday || (completion && completion.percentage >= 0)) {
+                            color = getInterpolatedColor(completion?.percentage ?? 0);
                         } else if (day < currentDay) {
-                            color = '#ffffff'; // Past (no todos or 0% done)
+                            color = '#ffffff'; // Past (fallback)
                         }
 
                         return (
@@ -103,6 +98,8 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height, com
                                     backgroundColor: color,
                                     marginRight: (i + 1) % dotsPerRow === 0 ? 0 : gap,
                                     marginBottom: gap,
+                                    border: isToday ? `${Math.max(2, dotSize * 0.1)}px solid #e76f51` : 'none',
+                                    boxSizing: 'border-box',
                                 }}
                             />
                         );

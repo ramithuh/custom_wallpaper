@@ -1,6 +1,6 @@
 import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay } from 'date-fns';
-import { TodoCompletionMap } from '../lib/todo-utils';
+import { TodoCompletionMap, getInterpolatedColor } from '../lib/todo-utils';
 
 interface MonthlyViewProps {
     date: Date;
@@ -133,17 +133,13 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height, c
                         const totalIdx = i + (getDay(monthStart) + 6) % 7;
                         const dateStr = format(day, 'yyyy-MM-dd');
                         const completion = completionMap?.[dateStr];
+                        const isToday = isSameDay(day, date);
 
                         let color = '#333333'; // Future
-                        if (isSameDay(day, date)) {
-                            color = '#e76f51'; // Today
-                        } else if (completion && completion.percentage > 0) {
-                            // Heatmap colors (Emerald)
-                            if (completion.percentage <= 33) color = '#34d399'; // Emerald 400
-                            else if (completion.percentage <= 66) color = '#10b981'; // Emerald 500
-                            else color = '#059669'; // Emerald 600
+                        if (isToday || (completion && completion.percentage >= 0)) {
+                            color = getInterpolatedColor(completion?.percentage ?? 0);
                         } else if (day < date) {
-                            color = '#ffffff'; // Past (no todos or 0% done)
+                            color = '#ffffff'; // Past (fallback)
                         }
 
                         return (
@@ -156,6 +152,8 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height, c
                                     backgroundColor: color,
                                     marginRight: (totalIdx + 1) % dotsPerRow === 0 ? 0 : gap,
                                     marginBottom: gap,
+                                    border: isToday ? `${Math.max(4, dotSize * 0.1)}px solid #e76f51` : 'none',
+                                    boxSizing: 'border-box',
                                 }}
                             />
                         );
