@@ -117,35 +117,35 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                     marginTop: 40,
                     width: isWider ? '60%' : '85%',
                 }}>
-                    <div style={{ display: 'flex', fontSize: 24, fontWeight: 700, color: '#e76f51', letterSpacing: 2, marginBottom: 25, opacity: 0.8 }}>
+                    <div style={{ display: 'flex', fontSize: 28, fontWeight: 700, color: '#e76f51', letterSpacing: 2, marginBottom: 30, opacity: 0.8 }}>
                         DAILY OBJECTIVES
                     </div>
                     {todos.map((t, i) => (
                         <div key={i} style={{
                             display: 'flex',
                             alignItems: 'center',
-                            marginBottom: i === todos.length - 1 ? 0 : 15,
+                            marginBottom: i === todos.length - 1 ? 0 : 20,
                             opacity: t.done ? 0.4 : 1,
                         }}>
                             <div style={{
-                                width: 24,
-                                height: 24,
-                                borderRadius: '6px',
+                                width: 32,
+                                height: 32,
+                                borderRadius: '8px',
                                 border: `2px solid ${t.done ? '#e76f51' : '#666666'}`,
                                 backgroundColor: t.done ? '#e76f51' : 'transparent',
-                                marginRight: 20,
+                                marginRight: 24,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                             }}>
                                 {t.done && (
                                     <svg
-                                        width="16"
-                                        height="16"
+                                        width="22"
+                                        height="22"
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="white"
-                                        strokeWidth="3.5"
+                                        strokeWidth="4"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                     >
@@ -155,7 +155,7 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                             </div>
                             <div style={{
                                 display: 'flex',
-                                fontSize: 28,
+                                fontSize: 36,
                                 fontWeight: 400,
                                 color: '#ffffff',
                                 textDecoration: t.done ? 'line-through' : 'none',
