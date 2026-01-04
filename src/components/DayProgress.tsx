@@ -137,7 +137,12 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                         const color = categoryColors[category];
 
                         return (
-                            <div key={category} style={{ width: '100%', marginBottom: category === 'mind' ? 0 : 40 }}>
+                            <div key={category} style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                width: '100%',
+                                marginBottom: category === 'mind' ? 0 : 40
+                            }}>
                                 <div style={{
                                     display: 'flex',
                                     fontSize: 32,
