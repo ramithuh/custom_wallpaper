@@ -145,8 +145,8 @@ export async function GET(req: NextRequest) {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
             },
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error generating wallpaper:', error);
-        return new NextResponse('Error generating wallpaper', { status: 500 });
+        return new NextResponse(`Error generating wallpaper: ${error.message || error}`, { status: 500 });
     }
 }

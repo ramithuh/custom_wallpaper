@@ -1,5 +1,5 @@
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay } from 'date-fns';
-import { TodoCompletionMap, getTrifectaColors } from '../lib/todo-utils';
+import { TodoCompletionMap, getTrifectaColors, TrifectaCompletion } from '../lib/todo-utils';
 
 interface MonthlyViewProps {
     date: Date;
@@ -8,16 +8,34 @@ interface MonthlyViewProps {
     completionMap?: TodoCompletionMap;
 }
 
-const TrifectaDot = ({ size, colors, isToday }: { size: number, colors: { work: string, fitness: string, mind: string }, isToday: boolean }) => {
+const TrifectaDot = ({ size, colors, completion, isToday }: { size: number, colors: { work: string, fitness: string, mind: string }, completion?: TrifectaCompletion, isToday: boolean }) => {
+    const active: { color: string }[] = [];
+    if (completion) {
+        if (completion.work.total > 0) active.push({ color: colors.work });
+        if (completion.fitness.total > 0) active.push({ color: colors.fitness });
+        if (completion.mind.total > 0) active.push({ color: colors.mind });
+    }
+
     return (
         <div style={{ position: 'relative', width: size, height: size, display: 'flex' }}>
             <svg width={size} height={size} viewBox="0 0 32 32" style={{ position: 'absolute', top: 0, left: 0 }}>
-                {/* Work Segment (0-120 deg) */}
-                <path d="M16,16 L16,0 A16,16 0 0,1 29.85,24 Z" fill={colors.work} />
-                {/* Fitness Segment (120-240 deg) */}
-                <path d="M16,16 L29.85,24 A16,16 0 0,1 2.15,24 Z" fill={colors.fitness} />
-                {/* Mind Segment (240-360 deg) */}
-                <path d="M16,16 L2.15,24 A16,16 0 0,1 16,0 Z" fill={colors.mind} />
+                {active.length === 0 && <circle cx="16" cy="16" r="16" fill={colors.work} />}
+                {active.length === 1 && <circle cx="16" cy="16" r="16" fill={active[0].color} />}
+                {active.length === 2 && (
+                    <>
+                        {/* 180 deg split: Right and Left */}
+                        <path d="M16,16 L16,0 A16,16 0 0,1 16,32 Z" fill={active[0].color} />
+                        <path d="M16,16 L16,32 A16,16 0 0,1 16,0 Z" fill={active[1].color} />
+                    </>
+                )}
+                {active.length === 3 && (
+                    <>
+                        {/* 120 deg split: Work (Top-Right), Fitness (Bottom), Mind (Top-Left) */}
+                        <path d="M16,16 L16,0 A16,16 0 0,1 29.85,24 Z" fill={active[0].color} />
+                        <path d="M16,16 L29.85,24 A16,16 0 0,1 2.15,24 Z" fill={active[1].color} />
+                        <path d="M16,16 L2.15,24 A16,16 0 0,1 16,0 Z" fill={active[2].color} />
+                    </>
+                )}
             </svg>
             {isToday && (
                 <div style={{
@@ -185,7 +203,7 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height, c
                                 marginRight: (totalIdx + 1) % dotsPerRow === 0 ? 0 : gap,
                                 marginBottom: gap,
                             }}>
-                                <TrifectaDot size={dotSize} colors={colors} isToday={isToday} />
+                                <TrifectaDot size={dotSize} colors={colors} completion={completion} isToday={isToday} />
                             </div>
                         );
                     })}
