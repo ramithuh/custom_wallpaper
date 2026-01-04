@@ -12,6 +12,25 @@ A premium, minimalist wallpaper generator for OLED screens, built with Next.js, 
 
 
 * **Global Support**: Full time zone customization.
+* **Daily Todo Dashboard**: A built-in, markdown-powered task manager for your Daily view.
+
+## Daily Todo Dashboard
+
+The Daily view now integrates a high-readability todo list. It automatically pulls tasks from markdown files hosted in your project.
+
+### How to use:
+
+1. Create a markdown file in `src/data/todos/` named after the current date (e.g., `2026-01-03.md`).
+2. Use standard markdown checkboxes:
+   ```markdown
+   - [x] Completed task
+   - [ ] Pending task
+   ```
+3. The wallpaper will automatically parse the file and display your objectives with a premium "focused" aesthetic.
+4. **Adaptive Layout**: If you have too many todos, the inspirational quote is hidden to keep the display clean and focused.
+
+### Shuffling Intervals
+By default, the wallpaper rotates between Yearly, Monthly, and Daily views every **10 seconds** (configurable in `api/wallpaper/route.tsx`).
 
 ## API Usage
 
