@@ -16,6 +16,9 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
     const elapsedSeconds = differenceInSeconds(date, start);
     const percentage = ((elapsedSeconds / totalSeconds) * 100).toFixed(2);
 
+    // Adaptive sizing
+    const isWider = width / height > 0.7;
+
     // Top Padding: 32% is the safe zone for large clocks (iPhone & iPad)
     const verticalPadding = height * 0.32;
 
