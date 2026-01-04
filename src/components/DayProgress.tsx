@@ -142,9 +142,10 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                                     <div style={{
                                         width: 12,
                                         height: 6,
-                                        borderBottom: '2px solid white',
-                                        borderLeft: '2px solid white',
-                                        transform: 'rotate(-45deg) translate(1px, -1px)'
+                                        borderBottom: '2.5px solid white',
+                                        borderLeft: '2.5px solid white',
+                                        transform: 'rotate(-45deg)',
+                                        marginTop: -2,
                                     }} />
                                 )}
                             </div>
