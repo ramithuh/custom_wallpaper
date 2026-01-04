@@ -1,5 +1,5 @@
 import { startOfYear, endOfYear, eachDayOfInterval, isSameDay, format } from 'date-fns';
-import { TodoCompletionMap, getTrifectaColors, TrifectaCompletion } from '../lib/todo-utils';
+import { TodoCompletionMap, TrifectaCompletion } from '../lib/todo-utils';
 
 interface YearlyViewProps {
     date: Date;
@@ -8,49 +8,76 @@ interface YearlyViewProps {
     completionMap?: TodoCompletionMap;
 }
 
-const TrifectaDot = ({ size, colors, completion, isToday }: { size: number, colors: { work: string, fitness: string, mind: string }, completion?: TrifectaCompletion, isToday: boolean }) => {
-    const hasWork = completion?.work.total ?? 0 > 0;
-    const hasFitness = completion?.fitness.total ?? 0 > 0;
-    const hasMind = completion?.mind.total ?? 0 > 0;
+const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?: TrifectaCompletion, isToday: boolean }) => {
+    const workTotal = completion?.work.total ?? 0;
+    const fitnessTotal = completion?.fitness.total ?? 0;
+    const mindTotal = completion?.mind.total ?? 0;
+    const totalTasks = workTotal + fitnessTotal + mindTotal;
+
+    const workDone = completion?.work.done ?? 0;
+    const fitnessDone = completion?.fitness.done ?? 0;
+    const mindDone = completion?.mind.done ?? 0;
+
+    // SPREAD: proportion of tasks in each category (how much of the dot this color covers)
+    const workShare = totalTasks > 0 ? workTotal / totalTasks : 0;
+    const fitnessShare = totalTasks > 0 ? fitnessTotal / totalTasks : 0;
+    const mindShare = totalTasks > 0 ? mindTotal / totalTasks : 0;
+
+    // OPACITY: completion rate for each category (how bright the color is)
+    const workOpacity = workTotal > 0 ? workDone / workTotal : 0;
+    const fitnessOpacity = fitnessTotal > 0 ? fitnessDone / fitnessTotal : 0;
+    const mindOpacity = mindTotal > 0 ? mindDone / mindTotal : 0;
+
+    // Spread: 30% base + up to 70% more based on share (so 100% share = 100% spread)
+    const workSpread = 30 + (workShare * 70);
+    const fitnessSpread = 30 + (fitnessShare * 70);
+    const mindSpread = 30 + (mindShare * 70);
 
     return (
-        <div style={{ position: 'relative', width: size, height: size, display: 'flex', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.05)' }}>
-
+        <div style={{
+            position: 'relative',
+            width: size,
+            height: size,
+            display: 'flex',
+            borderRadius: '50%',
+            overflow: 'hidden',
+            backgroundColor: 'rgba(255,255,255,0.5)',
+        }}>
             {/* Work: Top Right */}
-            <div style={{
+            {workTotal > 0 && <div style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
                 height: '100%',
-                background: 'radial-gradient(circle at 70% 30%, #00ff87 0%, transparent 60%)',
-                opacity: hasWork ? 0.8 + (completion!.work.percentage / 100) * 0.2 : 0,
-                filter: 'blur(3px)',
-            }} />
+                background: `radial-gradient(circle at 70% 30%, #00ff87 0%, transparent ${workSpread}%)`,
+                opacity: workOpacity,
+                filter: 'blur(2px)',
+            }} />}
 
             {/* Mind: Top Left */}
-            <div style={{
+            {mindTotal > 0 && <div style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
                 height: '100%',
-                background: 'radial-gradient(circle at 30% 30%, #0061ff 0%, transparent 60%)',
-                opacity: hasMind ? 0.8 + (completion!.mind.percentage / 100) * 0.2 : 0,
-                filter: 'blur(3px)',
-            }} />
+                background: `radial-gradient(circle at 30% 30%, #0061ff 0%, transparent ${mindSpread}%)`,
+                opacity: mindOpacity,
+                filter: 'blur(2px)',
+            }} />}
 
             {/* Fitness: Bottom */}
-            <div style={{
+            {fitnessTotal > 0 && <div style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
                 height: '100%',
-                background: 'radial-gradient(circle at 50% 70%, #ff1b6b 0%, transparent 60%)',
-                opacity: hasFitness ? 0.8 + (completion!.fitness.percentage / 100) * 0.2 : 0,
-                filter: 'blur(3px)',
-            }} />
+                background: `radial-gradient(circle at 50% 70%, #ff1b6b 0%, transparent ${fitnessSpread}%)`,
+                opacity: fitnessOpacity,
+                filter: 'blur(2px)',
+            }} />}
 
             {isToday && (
                 <div style={{
@@ -158,15 +185,13 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height, com
                             );
                         }
 
-                        const colors = getTrifectaColors(completion);
-
                         return (
                             <div key={i} style={{
                                 display: 'flex',
                                 marginRight: (i + 1) % dotsPerRow === 0 ? 0 : gap,
                                 marginBottom: gap,
                             }}>
-                                <TrifectaDot size={dotSize} colors={colors} completion={completion} isToday={isToday} />
+                                <TrifectaDot size={dotSize} completion={completion} isToday={isToday} />
                             </div>
                         );
                     })}

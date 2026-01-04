@@ -141,3 +141,63 @@ export function getTrifectaColors(completion: TrifectaCompletion | undefined): {
         mind: getInterpolatedColor(completion.mind.percentage, 'mind'),
     };
 }
+
+// Apple Card style color mixing based on task completion counts
+export interface BlendedColorResult {
+    color: string;
+    intensity: number; // 0-1 scale
+    totalDone: number;
+    isEmpty: boolean;
+}
+
+export function getBlendedTrifectaColor(completion: TrifectaCompletion | undefined): BlendedColorResult {
+    if (!completion) {
+        return {
+            color: 'rgba(255, 255, 255, 0.05)',
+            intensity: 0,
+            totalDone: 0,
+            isEmpty: true
+        };
+    }
+
+    const workDone = completion.work.done;
+    const fitnessDone = completion.fitness.done;
+    const mindDone = completion.mind.done;
+    const totalDone = workDone + fitnessDone + mindDone;
+
+    if (totalDone === 0) {
+        return {
+            color: 'rgba(255, 255, 255, 0.05)',
+            intensity: 0,
+            totalDone: 0,
+            isEmpty: true
+        };
+    }
+
+    // Calculate weights for each category based on completed tasks
+    const workWeight = workDone / totalDone;
+    const fitnessWeight = fitnessDone / totalDone;
+    const mindWeight = mindDone / totalDone;
+
+    // Base colors (Trifecta palette)
+    const workRGB = { r: 0, g: 255, b: 135 };      // #00ff87
+    const fitnessRGB = { r: 255, g: 27, b: 107 };  // #ff1b6b
+    const mindRGB = { r: 0, g: 97, b: 255 };       // #0061ff
+
+    // Weighted color mixing
+    const r = Math.round(workRGB.r * workWeight + fitnessRGB.r * fitnessWeight + mindRGB.r * mindWeight);
+    const g = Math.round(workRGB.g * workWeight + fitnessRGB.g * fitnessWeight + mindRGB.g * mindWeight);
+    const b = Math.round(workRGB.b * workWeight + fitnessRGB.b * fitnessWeight + mindRGB.b * mindWeight);
+
+    // Calculate intensity based on total tasks done
+    // Scale: 1-3 tasks = low, 4-7 = medium, 8+ = high
+    // Max intensity at 10+ tasks
+    const intensity = Math.min(totalDone / 10, 1);
+
+    return {
+        color: `rgb(${r}, ${g}, ${b})`,
+        intensity,
+        totalDone,
+        isEmpty: false
+    };
+}
