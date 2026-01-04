@@ -1,5 +1,5 @@
 import { startOfYear, endOfYear, eachDayOfInterval, isSameDay, format } from 'date-fns';
-import { TodoCompletionMap, getInterpolatedColor } from '../lib/todo-utils';
+import { TodoCompletionMap, getTrifectaGradient } from '../lib/todo-utils';
 
 interface YearlyViewProps {
     date: Date;
@@ -81,11 +81,11 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height, com
                         const completion = completionMap?.[dateStr];
                         const isToday = isSameDay(day, currentDay);
 
-                        let color = '#333333'; // Future
-                        if (isToday || (completion && completion.percentage >= 0)) {
-                            color = getInterpolatedColor(completion?.percentage ?? 0);
+                        let background = '#333333'; // Future
+                        if (isToday || (completion)) {
+                            background = getTrifectaGradient(completion);
                         } else if (day < currentDay) {
-                            color = '#ffffff'; // Past (fallback)
+                            background = '#ffffff'; // Past (fallback)
                         }
 
                         return (
@@ -95,7 +95,7 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height, com
                                     width: dotSize,
                                     height: dotSize,
                                     borderRadius: '50%',
-                                    backgroundColor: color,
+                                    background,
                                     marginRight: (i + 1) % dotsPerRow === 0 ? 0 : gap,
                                     marginBottom: gap,
                                     border: isToday ? `${Math.max(2, dotSize * 0.1)}px solid #e76f51` : 'none',

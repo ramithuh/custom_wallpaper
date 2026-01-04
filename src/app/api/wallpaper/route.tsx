@@ -7,7 +7,7 @@ import { renderToPng } from '@/lib/render';
 import { YearlyView } from '@/components/YearlyView';
 import { MonthlyView } from '@/components/MonthlyView';
 import { DayProgress } from '@/components/DayProgress';
-import { getTodoCompletionMap } from '@/lib/todo-utils';
+import { getTodoCompletionMap, parseCategorizedContent, CategorizedTodos } from '@/lib/todo-utils';
 
 const FALLBACK_QUOTES = [
     { q: "The only way to do great work is to love what you do.", a: "Steve Jobs" },
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
             }
 
             // Read and parse todos if they exist AND token is valid
-            let todos: { task: string; done: boolean }[] | undefined = undefined;
+            let categorizedTodos: CategorizedTodos | undefined = undefined;
             const tokenParam = searchParams.get('token');
             const secretToken = process.env.WALLPAPER_TOKEN;
 
@@ -112,24 +112,19 @@ export async function GET(req: NextRequest) {
                     const todoPath = path.join(process.cwd(), 'src/data/todos', `${dateStr}.md`);
                     const content = await fs.readFile(todoPath, 'utf8');
 
-                    // Simple markdown task list parser
-                    todos = content.split('\n')
-                        .filter(line => line.trim().startsWith('- [') || line.trim().startsWith('* ['))
-                        .map(line => {
-                            const trimmed = line.trim();
-                            const done = trimmed.startsWith('- [x]') || trimmed.startsWith('* [x]');
-                            const task = trimmed.replace(/^[-*]\s*\[[x ]\]\s*/, '').trim();
-                            return { task, done };
-                        })
-                        .filter(t => t.task.length > 0);
+                    const { tasks } = parseCategorizedContent(content);
+                    categorizedTodos = tasks;
 
-                    if (todos.length === 0) todos = undefined;
+                    // Only show if at least one category has tasks
+                    if (tasks.work.length === 0 && tasks.fitness.length === 0 && tasks.mind.length === 0) {
+                        categorizedTodos = undefined;
+                    }
                 } catch (e) {
                     // File not found or other read error, ignore and move on
                 }
             }
 
-            element = <DayProgress date={now} width={width} height={height} quote={quote} author={author} todos={todos} />;
+            element = <DayProgress date={now} width={width} height={height} quote={quote} author={author} categorizedTodos={categorizedTodos} />;
             break;
         }
         default:

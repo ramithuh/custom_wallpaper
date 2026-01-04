@@ -1,14 +1,30 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { formatDate } from 'date-fns';
 
-export interface TodoCompletion {
+export interface CategoryProgress {
     total: number;
     done: number;
     percentage: number;
 }
 
-export type TodoCompletionMap = Record<string, TodoCompletion>;
+export interface TodoTask {
+    task: string;
+    done: boolean;
+}
+
+export interface TrifectaCompletion {
+    work: CategoryProgress;
+    fitness: CategoryProgress;
+    mind: CategoryProgress;
+}
+
+export interface CategorizedTodos {
+    work: TodoTask[];
+    fitness: TodoTask[];
+    mind: TodoTask[];
+}
+
+export type TodoCompletionMap = Record<string, TrifectaCompletion>;
 
 export async function getTodoCompletionMap(): Promise<TodoCompletionMap> {
     const todosDir = path.join(process.cwd(), 'src/data/todos');
@@ -19,57 +35,104 @@ export async function getTodoCompletionMap(): Promise<TodoCompletionMap> {
         const mdFiles = files.filter(f => f.endsWith('.md'));
 
         for (const file of mdFiles) {
-            const dateStr = file.replace('.md', ''); // e.g., "2026-01-03"
+            const dateStr = file.replace('.md', '');
             const filePath = path.join(todosDir, file);
 
             try {
                 const content = await fs.readFile(filePath, 'utf8');
-                const lines = content.split('\n');
-
-                let total = 0;
-                let done = 0;
-
-                for (const line of lines) {
-                    const trimmed = line.trim();
-                    if (trimmed.startsWith('- [') || trimmed.startsWith('* [')) {
-                        total++;
-                        if (trimmed.includes('[x]')) {
-                            done++;
-                        }
-                    }
-                }
-
-                if (total > 0) {
-                    completionMap[dateStr] = {
-                        total,
-                        done,
-                        percentage: (done / total) * 100,
-                    };
-                }
+                const { completion } = parseCategorizedContent(content);
+                completionMap[dateStr] = completion;
             } catch (err) {
                 console.error(`Error reading todo file ${file}:`, err);
             }
         }
     } catch (err) {
-        // Directory might not exist yet
         console.error('Error reading todos directory:', err);
     }
 
     return completionMap;
 }
-export function getInterpolatedColor(percentage: number): string {
-    if (percentage <= 0) return 'rgba(255, 255, 255, 0.1)';
 
-    // Scale between Mint (Emerald 100ish) and Deep Emerald (Emerald 800ish)
-    // Percentage 1-100
+export function parseCategorizedContent(content: string): { completion: TrifectaCompletion, tasks: CategorizedTodos } {
+    const lines = content.split('\n');
+    const tasks: CategorizedTodos = {
+        work: [],
+        fitness: [],
+        mind: [],
+    };
+
+    let currentCategory: keyof CategorizedTodos = 'work';
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (headerMatches(trimmed, 'fitness')) currentCategory = 'fitness';
+        else if (headerMatches(trimmed, 'mind')) currentCategory = 'mind';
+        else if (headerMatches(trimmed, 'work')) currentCategory = 'work';
+        else if (trimmed.startsWith('- [') || trimmed.startsWith('* [')) {
+            const done = trimmed.includes('[x]');
+            const task = trimmed.replace(/^[-*]\s*\[[x ]\]\s*/, '').trim();
+            if (task) {
+                tasks[currentCategory].push({ task, done });
+            }
+        }
+    }
+
+    const completion: TrifectaCompletion = {
+        work: calculateProgress(tasks.work),
+        fitness: calculateProgress(tasks.fitness),
+        mind: calculateProgress(tasks.mind),
+    };
+
+    return { completion, tasks };
+}
+
+function calculateProgress(tasks: TodoTask[]): CategoryProgress {
+    const total = tasks.length;
+    const done = tasks.filter(t => t.done).length;
+    return {
+        total,
+        done,
+        percentage: total > 0 ? (done / total) * 100 : 0
+    };
+}
+
+function headerMatches(line: string, category: string): boolean {
+    const trimmed = line.trim().toLowerCase();
+    return (trimmed.startsWith('##') || trimmed.startsWith('#')) && trimmed.includes(category);
+}
+
+export function getInterpolatedColor(percentage: number, type: 'work' | 'fitness' | 'mind'): string {
+    if (percentage <= 0) return 'rgba(255, 255, 255, 0.05)';
+
     const p = percentage / 100;
+    let h = 160; // Work: Emerald
+    let s_start = 60, s_end = 90;
+    let l_start = 80, l_end = 30;
 
-    // Emerald Hue is ~160
-    // Saturation: 70% -> 90%
-    // Lightness: 85% -> 25%
-    const h = 160;
-    const s = Math.round(70 + (20 * p));
-    const l = Math.round(85 - (60 * p));
+    if (type === 'fitness') {
+        h = 38; // Fitness: Amber/Orange
+        l_start = 80; l_end = 45;
+    } else if (type === 'mind') {
+        h = 195; // Mind: Sky Blue
+        l_start = 85; l_end = 40;
+    }
+
+    const s = Math.round(s_start + ((s_end - s_start) * p));
+    const l = Math.round(l_start - ((l_start - l_end) * p));
 
     return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
+export function getTrifectaGradient(completion: TrifectaCompletion | undefined): string {
+    if (!completion) return 'rgba(255, 255, 255, 0.1)';
+
+    const workColor = getInterpolatedColor(completion.work.percentage, 'work');
+    const fitnessColor = getInterpolatedColor(completion.fitness.percentage, 'fitness');
+    const mindColor = getInterpolatedColor(completion.mind.percentage, 'mind');
+
+    return `conic-gradient(
+        ${workColor} 0deg 120deg,
+        ${fitnessColor} 120deg 240deg,
+        ${mindColor} 240deg 360deg
+    )`;
 }

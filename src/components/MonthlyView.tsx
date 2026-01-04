@@ -1,6 +1,5 @@
-import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay } from 'date-fns';
-import { TodoCompletionMap, getInterpolatedColor } from '../lib/todo-utils';
+import { TodoCompletionMap, getTrifectaGradient } from '../lib/todo-utils';
 
 interface MonthlyViewProps {
     date: Date;
@@ -135,11 +134,11 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height, c
                         const completion = completionMap?.[dateStr];
                         const isToday = isSameDay(day, date);
 
-                        let color = '#333333'; // Future
-                        if (isToday || (completion && completion.percentage >= 0)) {
-                            color = getInterpolatedColor(completion?.percentage ?? 0);
+                        let background = '#333333'; // Future
+                        if (isToday || (completion)) {
+                            background = getTrifectaGradient(completion);
                         } else if (day < date) {
-                            color = '#ffffff'; // Past (fallback)
+                            background = '#ffffff'; // Past (fallback)
                         }
 
                         return (
@@ -149,7 +148,7 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height, c
                                     width: dotSize,
                                     height: dotSize,
                                     borderRadius: '50%',
-                                    backgroundColor: color,
+                                    background,
                                     marginRight: (totalIdx + 1) % dotsPerRow === 0 ? 0 : gap,
                                     marginBottom: gap,
                                     border: isToday ? `${Math.max(4, dotSize * 0.1)}px solid #e76f51` : 'none',
