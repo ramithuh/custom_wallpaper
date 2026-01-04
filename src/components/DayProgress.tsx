@@ -139,14 +139,18 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                                 justifyContent: 'center',
                             }}>
                                 {t.done && (
-                                    <div style={{
-                                        width: 12,
-                                        height: 6,
-                                        borderBottom: '2.5px solid white',
-                                        borderLeft: '2.5px solid white',
-                                        transform: 'rotate(-45deg)',
-                                        marginTop: -2,
-                                    }} />
+                                    <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="white"
+                                        strokeWidth="3.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
                                 )}
                             </div>
                             <div style={{
