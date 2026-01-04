@@ -7,9 +7,10 @@ interface DayProgressProps {
     height: number;
     quote?: string;
     author?: string;
+    todos?: { task: string; done: boolean }[];
 }
 
-export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, quote, author }) => {
+export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, quote, author, todos }) => {
     const start = startOfDay(date);
     const totalSeconds = 24 * 60 * 60;
     const elapsedSeconds = differenceInSeconds(date, start);
@@ -17,10 +18,12 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
 
     // Adaptive sizing
     const isWider = width / height > 0.7;
-    const verticalPadding = height * (isWider ? 0.2 : 0.25);
+    const verticalPadding = height * (isWider ? 0.2 : 0.22); // Slightly less top padding for day view to fit more content
 
     // Circle size based on screen dimensions
-    const size = Math.min(Math.floor(width * 0.6), Math.floor(height * 0.35), 600);
+    // Shrink circle slightly if todos exist
+    const sizeMultiplier = todos ? 0.5 : 0.6;
+    const size = Math.min(Math.floor(width * sizeMultiplier), Math.floor(height * 0.3), 500);
     const strokeWidth = Math.floor(size * 0.08);
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
@@ -41,8 +44,7 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                 paddingTop: verticalPadding,
             }}
         >
-            <div style={{ flex: 1 }} />
-
+            {/* Progress Circle Section */}
             <div
                 style={{
                     display: 'flex',
@@ -64,7 +66,6 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                         transform: 'rotate(-90deg)',
                     }}
                 >
-                    {/* Background track */}
                     <circle
                         cx={size / 2}
                         cy={size / 2}
@@ -73,7 +74,6 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                         strokeWidth={strokeWidth}
                         fill="transparent"
                     />
-                    {/* Progress track */}
                     <circle
                         cx={size / 2}
                         cy={size / 2}
@@ -98,25 +98,84 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                 </div>
             </div>
 
-            <div style={{ display: 'flex', fontSize: 24, color: '#e76f51', marginTop: 40, letterSpacing: 4, fontWeight: 700 }}>
+            <div style={{ display: 'flex', fontSize: 24, color: '#e76f51', marginTop: 30, letterSpacing: 4, fontWeight: 700 }}>
                 {format(date, 'HH:mm')}
             </div>
 
-            {quote && (
+            {/* Daily Todos Section */}
+            {todos && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    padding: '40px 60px',
+                    borderRadius: '40px',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    marginTop: 40,
+                    width: isWider ? '60%' : '85%',
+                }}>
+                    <div style={{ display: 'flex', fontSize: 24, fontWeight: 700, color: '#e76f51', letterSpacing: 2, marginBottom: 25, opacity: 0.8 }}>
+                        DAILY OBJECTIVES
+                    </div>
+                    {todos.map((t, i) => (
+                        <div key={i} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            marginBottom: i === todos.length - 1 ? 0 : 15,
+                            opacity: t.done ? 0.4 : 1,
+                        }}>
+                            <div style={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: '6px',
+                                border: `2px solid ${t.done ? '#e76f51' : '#666666'}`,
+                                backgroundColor: t.done ? '#e76f51' : 'transparent',
+                                marginRight: 20,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}>
+                                {t.done && (
+                                    <div style={{
+                                        width: 12,
+                                        height: 6,
+                                        borderBottom: '2px solid white',
+                                        borderLeft: '2px solid white',
+                                        transform: 'rotate(-45deg) translate(1px, -1px)'
+                                    }} />
+                                )}
+                            </div>
+                            <div style={{
+                                display: 'flex',
+                                fontSize: 28,
+                                fontWeight: 400,
+                                color: '#ffffff',
+                                textDecoration: t.done ? 'line-through' : 'none',
+                            }}>
+                                {t.task}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Quote Section (Hidden if too many todos to stay clean) */}
+            {quote && (!todos || todos.length <= 3) && (
                 <div style={{
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     padding: isWider ? '0 200px' : '0 100px',
-                    marginTop: 60,
+                    marginTop: todos ? 40 : 60,
                     marginBottom: 40,
                     textAlign: 'center'
                 }}>
-                    <div style={{ display: 'flex', fontSize: 32, fontWeight: 300, fontStyle: 'italic', lineHeight: 1.5, color: '#cccccc' }}>
+                    <div style={{ display: 'flex', fontSize: recursiveQuoteSize(todos), fontWeight: 300, fontStyle: 'italic', lineHeight: 1.5, color: '#cccccc' }}>
                         "{quote}"
                     </div>
                     {author && (
-                        <div style={{ display: 'flex', fontSize: 28, fontWeight: 700, marginTop: 15, color: '#e76f51', opacity: 0.9 }}>
+                        <div style={{ display: 'flex', fontSize: recursiveAuthorSize(todos), fontWeight: 700, marginTop: 15, color: '#e76f51', opacity: 0.9 }}>
                             — {author}
                         </div>
                     )}
@@ -127,7 +186,7 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
 
             <div
                 style={{
-                    marginBottom: 100, // Safe area for focus/camera icons
+                    marginBottom: 100,
                     display: 'flex',
                     fontSize: 32,
                     fontWeight: 400,
@@ -138,4 +197,15 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
             </div>
         </div>
     );
+};
+
+// Helper to scale quote font size based on presence of todos
+const recursiveQuoteSize = (todos?: any[]) => {
+    if (!todos) return 32;
+    return 24;
+};
+
+const recursiveAuthorSize = (todos?: any[]) => {
+    if (!todos) return 28;
+    return 20;
 };

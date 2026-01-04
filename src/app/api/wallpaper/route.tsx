@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import React from 'react';
+import fs from 'fs/promises';
+import path from 'path';
+import { format as formatDate } from 'date-fns';
 import { renderToPng } from '@/lib/render';
 import { YearlyView } from '@/components/YearlyView';
 import { MonthlyView } from '@/components/MonthlyView';
@@ -94,7 +97,30 @@ export async function GET(req: NextRequest) {
                 author = FALLBACK_QUOTES[randomIdx].a;
             }
 
-            element = <DayProgress date={now} width={width} height={height} quote={quote} author={author} />;
+            // Read and parse todos if they exist
+            let todos: { task: string; done: boolean }[] | undefined = undefined;
+            try {
+                const dateStr = formatDate(now, 'yyyy-MM-dd');
+                const todoPath = path.join(process.cwd(), 'src/data/todos', `${dateStr}.md`);
+                const content = await fs.readFile(todoPath, 'utf8');
+
+                // Simple markdown task list parser
+                todos = content.split('\n')
+                    .filter(line => line.trim().startsWith('- [') || line.trim().startsWith('* ['))
+                    .map(line => {
+                        const trimmed = line.trim();
+                        const done = trimmed.startsWith('- [x]') || trimmed.startsWith('* [x]');
+                        const task = trimmed.replace(/^[-*]\s*\[[x ]\]\s*/, '').trim();
+                        return { task, done };
+                    })
+                    .filter(t => t.task.length > 0);
+
+                if (todos.length === 0) todos = undefined;
+            } catch (e) {
+                // File not found or other read error, ignore and move on
+            }
+
+            element = <DayProgress date={now} width={width} height={height} quote={quote} author={author} todos={todos} />;
             break;
         }
         default:
