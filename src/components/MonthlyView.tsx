@@ -1,13 +1,15 @@
 import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay } from 'date-fns';
+import { TodoCompletionMap } from '../lib/todo-utils';
 
 interface MonthlyViewProps {
     date: Date;
     width: number;
     height: number;
+    completionMap?: TodoCompletionMap;
 }
 
-export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height }) => {
+export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height, completionMap }) => {
     const monthStart = startOfMonth(date);
     const monthEnd = endOfMonth(date);
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
@@ -129,11 +131,19 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height })
                     ))}
                     {days.map((day, i) => {
                         const totalIdx = i + (getDay(monthStart) + 6) % 7;
+                        const dateStr = format(day, 'yyyy-MM-dd');
+                        const completion = completionMap?.[dateStr];
+
                         let color = '#333333'; // Future
-                        if (day < date && !isSameDay(day, date)) {
-                            color = '#ffffff'; // Past
-                        } else if (isSameDay(day, date)) {
+                        if (isSameDay(day, date)) {
                             color = '#e76f51'; // Today
+                        } else if (completion && completion.percentage > 0) {
+                            // Heatmap colors (Emerald)
+                            if (completion.percentage <= 33) color = '#34d399'; // Emerald 400
+                            else if (completion.percentage <= 66) color = '#10b981'; // Emerald 500
+                            else color = '#059669'; // Emerald 600
+                        } else if (day < date) {
+                            color = '#ffffff'; // Past (no todos or 0% done)
                         }
 
                         return (

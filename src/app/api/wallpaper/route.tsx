@@ -67,10 +67,10 @@ export async function GET(req: NextRequest) {
 
     switch (viewIndex) {
         case 0:
-            element = <YearlyView date={now} width={width} height={height} />;
+            element = <YearlyView date={now} width={width} height={height} completionMap={completionMap} />;
             break;
         case 1:
-            element = <MonthlyView date={now} width={width} height={height} />;
+            element = <MonthlyView date={now} width={width} height={height} completionMap={completionMap} />;
             break;
         case 2: {
             let quote = undefined;
