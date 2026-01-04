@@ -16,6 +16,7 @@ export interface TrifectaCompletion {
     work: CategoryProgress;
     fitness: CategoryProgress;
     mind: CategoryProgress;
+    isDeadline: boolean;
 }
 
 export interface CategorizedTodos {
@@ -61,18 +62,21 @@ export function parseCategorizedContent(content: string): { completion: Trifecta
         mind: [],
     };
 
-    let currentCategory: keyof CategorizedTodos = 'work';
+    let currentCategory: keyof CategorizedTodos | 'deadline' = 'work';
+    let hasDeadline = false;
 
     for (const line of lines) {
         const trimmed = line.trim();
         if (headerMatches(trimmed, 'fitness')) currentCategory = 'fitness';
         else if (headerMatches(trimmed, 'mind')) currentCategory = 'mind';
         else if (headerMatches(trimmed, 'work')) currentCategory = 'work';
-        else if (trimmed.startsWith('- [') || trimmed.startsWith('* [')) {
+        else if (headerMatches(trimmed, 'deadline')) {
+            hasDeadline = true;
+        } else if (trimmed.startsWith('- [') || trimmed.startsWith('* [')) {
             const done = trimmed.includes('[x]');
             const task = trimmed.replace(/^[-*]\s*\[[x ]\]\s*/, '').trim();
-            if (task) {
-                tasks[currentCategory].push({ task, done });
+            if (task && (['work', 'fitness', 'mind'] as string[]).includes(currentCategory)) {
+                tasks[currentCategory as keyof CategorizedTodos].push({ task, done });
             }
         }
     }
@@ -81,6 +85,7 @@ export function parseCategorizedContent(content: string): { completion: Trifecta
         work: calculateProgress(tasks.work),
         fitness: calculateProgress(tasks.fitness),
         mind: calculateProgress(tasks.mind),
+        isDeadline: hasDeadline,
     };
 
     return { completion, tasks };

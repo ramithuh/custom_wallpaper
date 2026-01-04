@@ -23,6 +23,37 @@ const createArcPath = (cx: number, cy: number, r: number, startAngle: number, en
 };
 
 const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?: TrifectaCompletion, isToday: boolean }) => {
+    const isDeadline = completion?.isDeadline ?? false;
+    const cx = size / 2;
+    const cy = size / 2;
+    const r = size / 2;
+
+    // If deadline, render solid red dot
+    if (isDeadline) {
+        return (
+            <div style={{
+                position: 'relative',
+                width: size,
+                height: size,
+                display: 'flex',
+            }}>
+                <svg width={size} height={size} style={{ position: 'absolute', top: 0, left: 0 }}>
+                    <circle cx={cx} cy={cy} r={r} fill="#ff3b30" />
+                    {isToday && (
+                        <circle
+                            cx={cx}
+                            cy={cy}
+                            r={r - Math.max(1, size * 0.04)}
+                            fill="none"
+                            stroke="#ffffff"
+                            strokeWidth={Math.max(2, size * 0.08)}
+                        />
+                    )}
+                </svg>
+            </div>
+        );
+    }
+
     const workTotal = completion?.work.total ?? 0;
     const fitnessTotal = completion?.fitness.total ?? 0;
     const mindTotal = completion?.mind.total ?? 0;
@@ -41,10 +72,6 @@ const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?:
     const workOpacity = workTotal > 0 ? 0.3 + (workDone / workTotal) * 0.7 : 0;
     const fitnessOpacity = fitnessTotal > 0 ? 0.3 + (fitnessDone / fitnessTotal) * 0.7 : 0;
     const mindOpacity = mindTotal > 0 ? 0.3 + (mindDone / mindTotal) * 0.7 : 0;
-
-    const cx = size / 2;
-    const cy = size / 2;
-    const r = size / 2;
 
     // Calculate angles (starting from top, going clockwise)
     const startAngle = -Math.PI / 2; // Start from top
@@ -279,8 +306,10 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height, c
                         const dateStr = format(day, 'yyyy-MM-dd');
                         const completion = completionMap?.[dateStr];
                         const isToday = isSameDay(day, date);
+                        const isDeadline = completion?.isDeadline ?? false;
 
-                        if (day > date && !isToday) {
+                        // Future days are gray, unless they have a deadline
+                        if (day > date && !isToday && !isDeadline) {
                             return (
                                 <div
                                     key={i}
