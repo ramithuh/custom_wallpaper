@@ -109,18 +109,18 @@ export function getInterpolatedColor(percentage: number, type: 'work' | 'fitness
     // Work: #00ff87 (Neon Mint) -> H: 152, S: 100%, L: 50%
     let h = 152;
     let s_start = 60, s_end = 100;
-    let l_start = 80, l_end = 50;
+    let l_start = 25, l_end = 50; // Start Dark (25%) -> End Bright (50%)
 
     if (type === 'fitness') {
         // Fitness: #ff1b6b (Hot Pink) -> H: 339, S: 100%, L: 55%
         h = 339;
         s_end = 100;
-        l_start = 85; l_end = 55;
+        l_start = 30; l_end = 55;
     } else if (type === 'mind') {
         // Mind: #0061ff (Bright Blue) -> H: 217, S: 100%, L: 50%
         h = 217;
         s_end = 100;
-        l_start = 90; l_end = 50;
+        l_start = 25; l_end = 50;
     }
 
     const s = Math.round(s_start + ((s_end - s_start) * p));
