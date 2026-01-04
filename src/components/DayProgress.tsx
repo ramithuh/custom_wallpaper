@@ -117,15 +117,15 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'flex-start',
-                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
                     padding: '40px 60px',
                     borderRadius: '50px',
                     border: '1px solid rgba(255, 255, 255, 0.06)',
                     marginTop: 60,
                     width: isWider ? '70%' : '90%',
-                    backdropFilter: 'blur(10px)',
                 }}>
-                    {(['work', 'fitness', 'mind'] as const).map(category => {
+                    {['work', 'fitness', 'mind'].map(cat => {
+                        const category = cat as keyof CategorizedTodos;
                         const tasks = categorizedTodos[category];
                         if (tasks.length === 0) return null;
 

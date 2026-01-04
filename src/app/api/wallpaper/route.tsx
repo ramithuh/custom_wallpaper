@@ -28,35 +28,41 @@ export async function GET(req: NextRequest) {
     const height = parseInt(searchParams.get('height') || '2556');
     const viewParam = searchParams.get('view');
     const tz = searchParams.get('tz') || 'UTC';
+    const debugDate = searchParams.get('debugDate');
 
     // Fetch todo completion data for Yearly/Monthly heatmap
     const completionMap = await getTodoCompletionMap();
 
     let now: Date;
-    try {
-        const formatter = new Intl.DateTimeFormat('en-US', {
-            timeZone: tz,
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: false,
-        });
-        const parts = formatter.formatToParts(new Date());
-        const partValues: Record<string, string> = {};
-        parts.forEach(p => (partValues[p.type] = p.value));
-        now = new Date(
-            parseInt(partValues.year),
-            parseInt(partValues.month) - 1,
-            parseInt(partValues.day),
-            parseInt(partValues.hour),
-            parseInt(partValues.minute),
-            parseInt(partValues.second)
-        );
-    } catch (e) {
-        now = new Date();
+    if (debugDate) {
+        now = new Date(debugDate);
+        if (isNaN(now.getTime())) now = new Date();
+    } else {
+        try {
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: tz,
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: false,
+            });
+            const parts = formatter.formatToParts(new Date());
+            const partValues: Record<string, string> = {};
+            parts.forEach(p => (partValues[p.type] = p.value));
+            now = new Date(
+                parseInt(partValues.year),
+                parseInt(partValues.month) - 1,
+                parseInt(partValues.day),
+                parseInt(partValues.hour),
+                parseInt(partValues.minute),
+                parseInt(partValues.second)
+            );
+        } catch (e) {
+            now = new Date();
+        }
     }
     const totalSecondsInHour = now.getMinutes() * 60 + now.getSeconds();
     const shufflingIntervalSeconds = 10;

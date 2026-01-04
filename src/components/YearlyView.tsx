@@ -158,11 +158,10 @@ export const YearlyView: React.FC<YearlyViewProps> = ({ date, width, height, com
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backgroundColor: 'rgba(26, 26, 26, 0.85)',
+                            backgroundColor: 'rgba(26, 26, 26, 0.9)',
                             padding: isPortrait ? '50px 70px' : '40px 60px',
                             borderRadius: '50px',
                             border: '1px solid rgba(255, 255, 255, 0.1)',
-                            backdropFilter: 'blur(10px)',
                         }}
                     >
                         <div style={{ display: 'flex', fontSize: isPortrait ? 180 : 140, fontWeight: 700, color: '#ffffff', lineHeight: 1 }}>
