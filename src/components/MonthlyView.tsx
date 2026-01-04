@@ -1,5 +1,5 @@
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay } from 'date-fns';
-import { TodoCompletionMap, getTrifectaGradient } from '../lib/todo-utils';
+import { TodoCompletionMap, getTrifectaColors } from '../lib/todo-utils';
 
 interface MonthlyViewProps {
     date: Date;
@@ -7,6 +7,33 @@ interface MonthlyViewProps {
     height: number;
     completionMap?: TodoCompletionMap;
 }
+
+const TrifectaDot = ({ size, colors, isToday }: { size: number, colors: { work: string, fitness: string, mind: string }, isToday: boolean }) => {
+    return (
+        <div style={{ position: 'relative', width: size, height: size, display: 'flex' }}>
+            <svg width={size} height={size} viewBox="0 0 32 32" style={{ position: 'absolute', top: 0, left: 0 }}>
+                {/* Work Segment (0-120 deg) */}
+                <path d="M16,16 L16,0 A16,16 0 0,1 29.85,24 Z" fill={colors.work} />
+                {/* Fitness Segment (120-240 deg) */}
+                <path d="M16,16 L29.85,24 A16,16 0 0,1 2.15,24 Z" fill={colors.fitness} />
+                {/* Mind Segment (240-360 deg) */}
+                <path d="M16,16 L2.15,24 A16,16 0 0,1 16,0 Z" fill={colors.mind} />
+            </svg>
+            {isToday && (
+                <div style={{
+                    position: 'absolute',
+                    top: -(size * 0.1),
+                    left: -(size * 0.1),
+                    width: size * 1.2,
+                    height: size * 1.2,
+                    borderRadius: '50%',
+                    border: `${Math.max(2, size * 0.08)}px solid #e76f51`,
+                    boxSizing: 'border-box',
+                }} />
+            )}
+        </div>
+    );
+};
 
 export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height, completionMap }) => {
     const monthStart = startOfMonth(date);
@@ -134,27 +161,32 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ date, width, height, c
                         const completion = completionMap?.[dateStr];
                         const isToday = isSameDay(day, date);
 
-                        let background = '#333333'; // Future
-                        if (isToday || (completion)) {
-                            background = getTrifectaGradient(completion);
-                        } else if (day < date) {
-                            background = '#ffffff'; // Past (fallback)
+                        if (day > date && !isToday) {
+                            return (
+                                <div
+                                    key={i}
+                                    style={{
+                                        width: dotSize,
+                                        height: dotSize,
+                                        borderRadius: '50%',
+                                        backgroundColor: '#333333',
+                                        marginRight: (totalIdx + 1) % dotsPerRow === 0 ? 0 : gap,
+                                        marginBottom: gap,
+                                    }}
+                                />
+                            );
                         }
 
+                        const colors = getTrifectaColors(completion);
+
                         return (
-                            <div
-                                key={i}
-                                style={{
-                                    width: dotSize,
-                                    height: dotSize,
-                                    borderRadius: '50%',
-                                    background,
-                                    marginRight: (totalIdx + 1) % dotsPerRow === 0 ? 0 : gap,
-                                    marginBottom: gap,
-                                    border: isToday ? `${Math.max(4, dotSize * 0.1)}px solid #e76f51` : 'none',
-                                    boxSizing: 'border-box',
-                                }}
-                            />
+                            <div key={i} style={{
+                                display: 'flex',
+                                marginRight: (totalIdx + 1) % dotsPerRow === 0 ? 0 : gap,
+                                marginBottom: gap,
+                            }}>
+                                <TrifectaDot size={dotSize} colors={colors} isToday={isToday} />
+                            </div>
                         );
                     })}
                 </div>

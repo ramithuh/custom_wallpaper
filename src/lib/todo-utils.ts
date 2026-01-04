@@ -123,16 +123,15 @@ export function getInterpolatedColor(percentage: number, type: 'work' | 'fitness
     return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
-export function getTrifectaGradient(completion: TrifectaCompletion | undefined): string {
-    if (!completion) return 'rgba(255, 255, 255, 0.1)';
+export function getTrifectaColors(completion: TrifectaCompletion | undefined): { work: string, fitness: string, mind: string } {
+    if (!completion) {
+        const dim = 'rgba(255, 255, 255, 0.05)';
+        return { work: dim, fitness: dim, mind: dim };
+    }
 
-    const workColor = getInterpolatedColor(completion.work.percentage, 'work');
-    const fitnessColor = getInterpolatedColor(completion.fitness.percentage, 'fitness');
-    const mindColor = getInterpolatedColor(completion.mind.percentage, 'mind');
-
-    return `conic-gradient(
-        ${workColor} 0deg 120deg,
-        ${fitnessColor} 120deg 240deg,
-        ${mindColor} 240deg 360deg
-    )`;
+    return {
+        work: getInterpolatedColor(completion.work.percentage, 'work'),
+        fitness: getInterpolatedColor(completion.fitness.percentage, 'fitness'),
+        mind: getInterpolatedColor(completion.mind.percentage, 'mind'),
+    };
 }
