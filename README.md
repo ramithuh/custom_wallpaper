@@ -29,6 +29,16 @@ The Daily view now integrates a high-readability todo list. It automatically pul
 3. The wallpaper will automatically parse the file and display your objectives with a premium "focused" aesthetic.
 4. **Adaptive Layout**: If you have too many todos, the inspirational quote is hidden to keep the display clean and focused.
 
+### Security (Private Mode)
+
+To protect your daily objectives from public scraping, you can enable **Private Mode**:
+
+1. Set a `WALLPAPER_TOKEN` environment variable in your hosting platform (Vercel, Cloudflare, etc.) or in `.env.local`.
+2. Add the `token` parameter to your wallpaper URL:
+   `https://your-domain.com/api/wallpaper?token=YOUR_SECRET_KEY`
+
+If the token is missing or incorrect, the API will fall back to showing a public inspirational quote instead of your private tasks.
+
 ### Shuffling Intervals
 By default, the wallpaper rotates between Yearly, Monthly, and Daily views every **10 seconds** (configurable in `api/wallpaper/route.tsx`).
 
@@ -42,6 +52,7 @@ The primary endpoint is `/api/wallpaper`.
 | --- | --- | --- |
 | `view` | Manually select a view | `year`, `month`, `daily` |
 | `tz` | Set the time zone | Any IANA time zone (e.g. `America/Los_Angeles`) |
+| `token` | Secret key for Private Mode | Your `WALLPAPER_TOKEN` value |
 | `width` | Image width | Default: `1179` |
 | `height` | Image height | Default: `2556` |
 

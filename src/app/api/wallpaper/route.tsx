@@ -97,27 +97,32 @@ export async function GET(req: NextRequest) {
                 author = FALLBACK_QUOTES[randomIdx].a;
             }
 
-            // Read and parse todos if they exist
+            // Read and parse todos if they exist AND token is valid
             let todos: { task: string; done: boolean }[] | undefined = undefined;
-            try {
-                const dateStr = formatDate(now, 'yyyy-MM-dd');
-                const todoPath = path.join(process.cwd(), 'src/data/todos', `${dateStr}.md`);
-                const content = await fs.readFile(todoPath, 'utf8');
+            const tokenParam = searchParams.get('token');
+            const secretToken = process.env.WALLPAPER_TOKEN;
 
-                // Simple markdown task list parser
-                todos = content.split('\n')
-                    .filter(line => line.trim().startsWith('- [') || line.trim().startsWith('* ['))
-                    .map(line => {
-                        const trimmed = line.trim();
-                        const done = trimmed.startsWith('- [x]') || trimmed.startsWith('* [x]');
-                        const task = trimmed.replace(/^[-*]\s*\[[x ]\]\s*/, '').trim();
-                        return { task, done };
-                    })
-                    .filter(t => t.task.length > 0);
+            if (secretToken && tokenParam === secretToken) {
+                try {
+                    const dateStr = formatDate(now, 'yyyy-MM-dd');
+                    const todoPath = path.join(process.cwd(), 'src/data/todos', `${dateStr}.md`);
+                    const content = await fs.readFile(todoPath, 'utf8');
 
-                if (todos.length === 0) todos = undefined;
-            } catch (e) {
-                // File not found or other read error, ignore and move on
+                    // Simple markdown task list parser
+                    todos = content.split('\n')
+                        .filter(line => line.trim().startsWith('- [') || line.trim().startsWith('* ['))
+                        .map(line => {
+                            const trimmed = line.trim();
+                            const done = trimmed.startsWith('- [x]') || trimmed.startsWith('* [x]');
+                            const task = trimmed.replace(/^[-*]\s*\[[x ]\]\s*/, '').trim();
+                            return { task, done };
+                        })
+                        .filter(t => t.task.length > 0);
+
+                    if (todos.length === 0) todos = undefined;
+                } catch (e) {
+                    // File not found or other read error, ignore and move on
+                }
             }
 
             element = <DayProgress date={now} width={width} height={height} quote={quote} author={author} todos={todos} />;
