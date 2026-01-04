@@ -105,16 +105,22 @@ export function getInterpolatedColor(percentage: number, type: 'work' | 'fitness
     if (percentage <= 0) return 'rgba(255, 255, 255, 0.05)';
 
     const p = percentage / 100;
-    let h = 140; // Work: Neon Green
-    let s_start = 60, s_end = 90;
-    let l_start = 80, l_end = 40; // Darker end for better contrast
+
+    // Work: #00ff87 (Neon Mint) -> H: 152, S: 100%, L: 50%
+    let h = 152;
+    let s_start = 60, s_end = 100;
+    let l_start = 80, l_end = 50;
 
     if (type === 'fitness') {
-        h = 10; // Fitness: Bright Red-Orange
-        l_start = 85; l_end = 50;
+        // Fitness: #ff1b6b (Hot Pink) -> H: 339, S: 100%, L: 55%
+        h = 339;
+        s_end = 100;
+        l_start = 85; l_end = 55;
     } else if (type === 'mind') {
-        h = 260; // Mind: Deep Purple/Blue
-        l_start = 90; l_end = 55;
+        // Mind: #0061ff (Bright Blue) -> H: 217, S: 100%, L: 50%
+        h = 217;
+        s_end = 100;
+        l_start = 90; l_end = 50;
     }
 
     const s = Math.round(s_start + ((s_end - s_start) * p));
