@@ -9,42 +9,60 @@ interface YearlyViewProps {
 }
 
 const TrifectaDot = ({ size, colors, completion, isToday }: { size: number, colors: { work: string, fitness: string, mind: string }, completion?: TrifectaCompletion, isToday: boolean }) => {
-    const active: { color: string }[] = [];
-    if (completion) {
-        if (completion.work.total > 0) active.push({ color: colors.work });
-        if (completion.fitness.total > 0) active.push({ color: colors.fitness });
-        if (completion.mind.total > 0) active.push({ color: colors.mind });
-    }
+    const hasWork = completion?.work.total ?? 0 > 0;
+    const hasFitness = completion?.fitness.total ?? 0 > 0;
+    const hasMind = completion?.mind.total ?? 0 > 0;
 
     return (
-        <div style={{ position: 'relative', width: size, height: size, display: 'flex' }}>
-            <svg width={size} height={size} viewBox="0 0 32 32" style={{ position: 'absolute', top: 0, left: 0 }}>
-                {active.length === 0 && <circle cx="16" cy="16" r="16" fill={colors.work} />}
-                {active.length === 1 && <circle cx="16" cy="16" r="16" fill={active[0].color} />}
-                {active.length === 2 && (
-                    <g>
-                        <path d="M16,16 L16,0 A16,16 0 0,1 16,32 Z" fill={active[0].color} />
-                        <path d="M16,16 L16,32 A16,16 0 0,1 16,0 Z" fill={active[1].color} />
-                    </g>
-                )}
-                {active.length === 3 && (
-                    <g>
-                        <path d="M16,16 L16,0 A16,16 0 0,1 29.85,24 Z" fill={active[0].color} />
-                        <path d="M16,16 L29.85,24 A16,16 0 0,1 2.15,24 Z" fill={active[1].color} />
-                        <path d="M16,16 L2.15,24 A16,16 0 0,1 16,0 Z" fill={active[2].color} />
-                    </g>
-                )}
-            </svg>
+        <div style={{ position: 'relative', width: size, height: size, display: 'flex', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.05)' }}>
+
+            {/* Work: Top Right */}
+            <div style={{
+                position: 'absolute',
+                top: '-20%',
+                right: '-20%',
+                width: '80%',
+                height: '80%',
+                background: 'radial-gradient(circle, #00ff87 0%, transparent 70%)',
+                opacity: hasWork ? 0.8 + (completion!.work.percentage / 100) * 0.2 : 0,
+                filter: 'blur(3px)',
+            }} />
+
+            {/* Mind: Top Left */}
+            <div style={{
+                position: 'absolute',
+                top: '-20%',
+                left: '-20%',
+                width: '80%',
+                height: '80%',
+                background: 'radial-gradient(circle, #0061ff 0%, transparent 70%)',
+                opacity: hasMind ? 0.8 + (completion!.mind.percentage / 100) * 0.2 : 0,
+                filter: 'blur(3px)',
+            }} />
+
+            {/* Fitness: Bottom */}
+            <div style={{
+                position: 'absolute',
+                bottom: '-20%',
+                left: '20%',
+                width: '60%',
+                height: '80%',
+                background: 'radial-gradient(circle, #ff1b6b 0%, transparent 70%)',
+                opacity: hasFitness ? 0.8 + (completion!.fitness.percentage / 100) * 0.2 : 0,
+                filter: 'blur(3px)',
+            }} />
+
             {isToday && (
                 <div style={{
                     position: 'absolute',
-                    top: -(size * 0.2),
-                    left: -(size * 0.2),
-                    width: size * 1.4,
-                    height: size * 1.4,
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
                     borderRadius: '50%',
                     border: `${Math.max(2, size * 0.15)}px solid #e76f51`,
                     boxSizing: 'border-box',
+                    zIndex: 10
                 }} />
             )}
         </div>
