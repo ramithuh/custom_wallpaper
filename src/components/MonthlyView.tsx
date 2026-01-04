@@ -8,6 +8,20 @@ interface MonthlyViewProps {
     completionMap?: TodoCompletionMap;
 }
 
+// Helper to create SVG arc path
+const createArcPath = (cx: number, cy: number, r: number, startAngle: number, endAngle: number): string => {
+    const start = {
+        x: cx + r * Math.cos(startAngle),
+        y: cy + r * Math.sin(startAngle)
+    };
+    const end = {
+        x: cx + r * Math.cos(endAngle),
+        y: cy + r * Math.sin(endAngle)
+    };
+    const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
+    return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
+};
+
 const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?: TrifectaCompletion, isToday: boolean }) => {
     const workTotal = completion?.work.total ?? 0;
     const fitnessTotal = completion?.fitness.total ?? 0;
@@ -18,20 +32,25 @@ const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?:
     const fitnessDone = completion?.fitness.done ?? 0;
     const mindDone = completion?.mind.done ?? 0;
 
-    // SPREAD: proportion of tasks in each category (how much of the dot this color covers)
+    // Share determines the angle slice
     const workShare = totalTasks > 0 ? workTotal / totalTasks : 0;
     const fitnessShare = totalTasks > 0 ? fitnessTotal / totalTasks : 0;
     const mindShare = totalTasks > 0 ? mindTotal / totalTasks : 0;
 
-    // OPACITY: completion rate for each category (how bright the color is)
-    const workOpacity = workTotal > 0 ? workDone / workTotal : 0;
-    const fitnessOpacity = fitnessTotal > 0 ? fitnessDone / fitnessTotal : 0;
-    const mindOpacity = mindTotal > 0 ? mindDone / mindTotal : 0;
+    // Completion rate determines opacity (0.3 base + 0.7 from completion)
+    const workOpacity = workTotal > 0 ? 0.3 + (workDone / workTotal) * 0.7 : 0;
+    const fitnessOpacity = fitnessTotal > 0 ? 0.3 + (fitnessDone / fitnessTotal) * 0.7 : 0;
+    const mindOpacity = mindTotal > 0 ? 0.3 + (mindDone / mindTotal) * 0.7 : 0;
 
-    // Spread: 30% base + up to 70% more based on share (so 100% share = 100% spread)
-    const workSpread = 30 + (workShare * 70);
-    const fitnessSpread = 30 + (fitnessShare * 70);
-    const mindSpread = 30 + (mindShare * 70);
+    const cx = size / 2;
+    const cy = size / 2;
+    const r = size / 2;
+
+    // Calculate angles (starting from top, going clockwise)
+    const startAngle = -Math.PI / 2; // Start from top
+    const workEnd = startAngle + workShare * 2 * Math.PI;
+    const fitnessEnd = workEnd + fitnessShare * 2 * Math.PI;
+    const mindEnd = fitnessEnd + mindShare * 2 * Math.PI;
 
     return (
         <div style={{
@@ -39,59 +58,62 @@ const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?:
             width: size,
             height: size,
             display: 'flex',
-            borderRadius: '50%',
-            overflow: 'hidden',
-            backgroundColor: 'rgba(255,255,255,0.5)',
         }}>
-            {/* Work: Top Right */}
-            {workTotal > 0 && <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                background: `radial-gradient(circle at 70% 30%, #00ff87 0%, transparent ${workSpread}%)`,
-                opacity: workOpacity,
-                filter: 'blur(2px)',
-            }} />}
+            <svg width={size} height={size} style={{ position: 'absolute', top: 0, left: 0 }}>
+                {/* Base circle for empty/past days */}
+                <circle cx={cx} cy={cy} r={r} fill="rgba(255,255,255,0.3)" />
 
-            {/* Mind: Top Left */}
-            {mindTotal > 0 && <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                background: `radial-gradient(circle at 30% 30%, #0061ff 0%, transparent ${mindSpread}%)`,
-                opacity: mindOpacity,
-                filter: 'blur(2px)',
-            }} />}
+                {/* Work slice - use circle if 100% */}
+                {workShare > 0 && (
+                    workShare >= 0.999 ? (
+                        <circle cx={cx} cy={cy} r={r} fill="#00ff87" opacity={workOpacity} />
+                    ) : (
+                        <path
+                            d={createArcPath(cx, cy, r, startAngle, workEnd)}
+                            fill="#00ff87"
+                            opacity={workOpacity}
+                        />
+                    )
+                )}
 
-            {/* Fitness: Bottom */}
-            {fitnessTotal > 0 && <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                background: `radial-gradient(circle at 50% 70%, #ff1b6b 0%, transparent ${fitnessSpread}%)`,
-                opacity: fitnessOpacity,
-                filter: 'blur(2px)',
-            }} />}
+                {/* Fitness slice - use circle if 100% */}
+                {fitnessShare > 0 && (
+                    fitnessShare >= 0.999 ? (
+                        <circle cx={cx} cy={cy} r={r} fill="#ff1b6b" opacity={fitnessOpacity} />
+                    ) : (
+                        <path
+                            d={createArcPath(cx, cy, r, workEnd, fitnessEnd)}
+                            fill="#ff1b6b"
+                            opacity={fitnessOpacity}
+                        />
+                    )
+                )}
 
-            {isToday && (
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '50%',
-                    border: `${Math.max(2, size * 0.08)}px solid #e76f51`,
-                    boxSizing: 'border-box',
-                    zIndex: 10
-                }} />
-            )}
+                {/* Mind slice - use circle if 100% */}
+                {mindShare > 0 && (
+                    mindShare >= 0.999 ? (
+                        <circle cx={cx} cy={cy} r={r} fill="#0061ff" opacity={mindOpacity} />
+                    ) : (
+                        <path
+                            d={createArcPath(cx, cy, r, fitnessEnd, mindEnd)}
+                            fill="#0061ff"
+                            opacity={mindOpacity}
+                        />
+                    )
+                )}
+
+                {/* Today indicator */}
+                {isToday && (
+                    <circle
+                        cx={cx}
+                        cy={cy}
+                        r={r - Math.max(1, size * 0.04)}
+                        fill="none"
+                        stroke="#e76f51"
+                        strokeWidth={Math.max(2, size * 0.08)}
+                    />
+                )}
+            </svg>
         </div>
     );
 };
