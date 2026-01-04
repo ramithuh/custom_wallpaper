@@ -114,7 +114,7 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                     padding: '40px 60px',
                     borderRadius: '40px',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
-                    marginTop: 40,
+                    marginTop: 80,
                     width: isWider ? '60%' : '85%',
                 }}>
                     <div style={{ display: 'flex', fontSize: 36, fontWeight: 700, color: '#e76f51', letterSpacing: 2, marginBottom: 40, opacity: 0.8 }}>
