@@ -60,17 +60,53 @@ const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?:
             display: 'flex',
         }}>
             <svg width={size} height={size} style={{ position: 'absolute', top: 0, left: 0 }}>
+                <defs>
+                    {/* Work gradient - from start angle to end angle */}
+                    <linearGradient
+                        id={`workGrad-${size}`}
+                        x1={`${50 + 50 * Math.cos(startAngle)}%`}
+                        y1={`${50 + 50 * Math.sin(startAngle)}%`}
+                        x2={`${50 + 50 * Math.cos(workEnd)}%`}
+                        y2={`${50 + 50 * Math.sin(workEnd)}%`}
+                    >
+                        <stop offset="0%" stopColor="#00ff87" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#00ff87" stopOpacity="0.4" />
+                    </linearGradient>
+                    {/* Fitness gradient */}
+                    <linearGradient
+                        id={`fitnessGrad-${size}`}
+                        x1={`${50 + 50 * Math.cos(workEnd)}%`}
+                        y1={`${50 + 50 * Math.sin(workEnd)}%`}
+                        x2={`${50 + 50 * Math.cos(fitnessEnd)}%`}
+                        y2={`${50 + 50 * Math.sin(fitnessEnd)}%`}
+                    >
+                        <stop offset="0%" stopColor="#ff1b6b" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#ff1b6b" stopOpacity="0.4" />
+                    </linearGradient>
+                    {/* Mind gradient */}
+                    <linearGradient
+                        id={`mindGrad-${size}`}
+                        x1={`${50 + 50 * Math.cos(fitnessEnd)}%`}
+                        y1={`${50 + 50 * Math.sin(fitnessEnd)}%`}
+                        x2={`${50 + 50 * Math.cos(mindEnd)}%`}
+                        y2={`${50 + 50 * Math.sin(mindEnd)}%`}
+                    >
+                        <stop offset="0%" stopColor="#0061ff" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#0061ff" stopOpacity="0.4" />
+                    </linearGradient>
+                </defs>
+
                 {/* Base circle for empty/past days */}
                 <circle cx={cx} cy={cy} r={r} fill="rgba(255,255,255,0.3)" />
 
                 {/* Work slice - use circle if 100% */}
                 {workShare > 0 && (
                     workShare >= 0.999 ? (
-                        <circle cx={cx} cy={cy} r={r} fill="#00ff87" opacity={workOpacity} />
+                        <circle cx={cx} cy={cy} r={r} fill={`url(#workGrad-${size})`} opacity={workOpacity} />
                     ) : (
                         <path
                             d={createArcPath(cx, cy, r, startAngle, workEnd)}
-                            fill="#00ff87"
+                            fill={`url(#workGrad-${size})`}
                             opacity={workOpacity}
                         />
                     )
@@ -79,11 +115,11 @@ const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?:
                 {/* Fitness slice - use circle if 100% */}
                 {fitnessShare > 0 && (
                     fitnessShare >= 0.999 ? (
-                        <circle cx={cx} cy={cy} r={r} fill="#ff1b6b" opacity={fitnessOpacity} />
+                        <circle cx={cx} cy={cy} r={r} fill={`url(#fitnessGrad-${size})`} opacity={fitnessOpacity} />
                     ) : (
                         <path
                             d={createArcPath(cx, cy, r, workEnd, fitnessEnd)}
-                            fill="#ff1b6b"
+                            fill={`url(#fitnessGrad-${size})`}
                             opacity={fitnessOpacity}
                         />
                     )
@@ -92,11 +128,11 @@ const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?:
                 {/* Mind slice - use circle if 100% */}
                 {mindShare > 0 && (
                     mindShare >= 0.999 ? (
-                        <circle cx={cx} cy={cy} r={r} fill="#0061ff" opacity={mindOpacity} />
+                        <circle cx={cx} cy={cy} r={r} fill={`url(#mindGrad-${size})`} opacity={mindOpacity} />
                     ) : (
                         <path
                             d={createArcPath(cx, cy, r, fitnessEnd, mindEnd)}
-                            fill="#0061ff"
+                            fill={`url(#mindGrad-${size})`}
                             opacity={mindOpacity}
                         />
                     )
