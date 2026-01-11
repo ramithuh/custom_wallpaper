@@ -30,6 +30,7 @@ const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?:
 
     // If deadline, render solid red dot
     if (isDeadline) {
+        const dotColor = completion?.deadlineColor || '#ff3b30';
         return (
             <div style={{
                 position: 'relative',
@@ -38,7 +39,7 @@ const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?:
                 display: 'flex',
             }}>
                 <svg width={size} height={size} style={{ position: 'absolute', top: 0, left: 0 }}>
-                    <circle cx={cx} cy={cy} r={r} fill="#ff3b30" />
+                    <circle cx={cx} cy={cy} r={r} fill={dotColor} />
                     {isToday && (
                         <circle
                             cx={cx}
@@ -124,7 +125,7 @@ const TrifectaDot = ({ size, completion, isToday }: { size: number, completion?:
                 </defs>
 
                 {/* Base circle for empty/past days */}
-                <circle cx={cx} cy={cy} r={r} fill="rgba(255,255,255,0.3)" />
+                <circle cx={cx} cy={cy} r={r} fill="#BBBBBB" />
 
                 {/* Work slice - use circle if 100% */}
                 {workShare > 0 && (

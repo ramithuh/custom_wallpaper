@@ -17,18 +17,20 @@ export interface TrifectaCompletion {
     fitness: CategoryProgress;
     mind: CategoryProgress;
     isDeadline: boolean;
+    deadlineColor?: string;
 }
 
 export interface CategorizedTodos {
     work: TodoTask[];
     fitness: TodoTask[];
     mind: TodoTask[];
+    notes: string[];
 }
 
 export type TodoCompletionMap = Record<string, TrifectaCompletion>;
 
 export async function getTodoCompletionMap(): Promise<TodoCompletionMap> {
-    const todosDir = path.join(process.cwd(), 'src/data/todos');
+    const todosDir = path.resolve(process.cwd(), process.env.TODO_DIR || 'src/data/todos');
     const completionMap: TodoCompletionMap = {};
 
     try {
@@ -60,10 +62,12 @@ export function parseCategorizedContent(content: string): { completion: Trifecta
         work: [],
         fitness: [],
         mind: [],
+        notes: [],
     };
 
     let currentCategory: keyof CategorizedTodos | 'deadline' = 'work';
     let hasDeadline = false;
+    let deadlineColor: string | undefined;
 
     for (const line of lines) {
         const trimmed = line.trim();
@@ -72,11 +76,23 @@ export function parseCategorizedContent(content: string): { completion: Trifecta
         else if (headerMatches(trimmed, 'work')) currentCategory = 'work';
         else if (headerMatches(trimmed, 'deadline')) {
             hasDeadline = true;
+            const colorMatch = trimmed.match(/#([0-9a-fA-F]{3,6})/);
+            if (colorMatch) {
+                deadlineColor = colorMatch[0];
+            }
         } else if (trimmed.startsWith('- [') || trimmed.startsWith('* [')) {
             const done = trimmed.includes('[x]');
             const task = trimmed.replace(/^[-*]\s*\[[x ]\]\s*/, '').trim();
-            if (task && (['work', 'fitness', 'mind'] as string[]).includes(currentCategory)) {
-                tasks[currentCategory as keyof CategorizedTodos].push({ task, done });
+            if (task) {
+                if (currentCategory === 'work' || currentCategory === 'fitness' || currentCategory === 'mind') {
+                    tasks[currentCategory].push({ task, done });
+                }
+            }
+        } else if ((trimmed.startsWith('- ') || trimmed.startsWith('* ')) && !trimmed.startsWith('- [') && !trimmed.startsWith('* [')) {
+            // It's a note
+            const note = trimmed.replace(/^[-*]\s*/, '').trim();
+            if (note) {
+                tasks.notes.push(note);
             }
         }
     }
@@ -86,6 +102,7 @@ export function parseCategorizedContent(content: string): { completion: Trifecta
         fitness: calculateProgress(tasks.fitness),
         mind: calculateProgress(tasks.mind),
         isDeadline: hasDeadline,
+        deadlineColor,
     };
 
     return { completion, tasks };

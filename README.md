@@ -14,6 +14,22 @@ A premium, minimalist wallpaper generator for OLED screens, built with Next.js, 
 * **Global Support**: Full time zone customization.
 * **Daily Todo Dashboard**: A built-in, markdown-powered task manager for your Daily view.
 
+## Getting Started
+
+First, install the dependencies:
+
+```bash
+npm install
+```
+
+Then, run the development server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000/api/wallpaper](http://localhost:3000/api/wallpaper) with your browser to see the generated wallpaper.
+
 ## Daily Todo Dashboard
 
 The Daily view now integrates a high-readability todo list. It automatically pulls tasks from markdown files hosted in your project.
@@ -38,6 +54,13 @@ To protect your daily objectives from public scraping, you can enable **Private 
    `https://your-domain.com/api/wallpaper?token=YOUR_SECRET_KEY`
 
 If the token is missing or incorrect, the API will fall back to showing a public inspirational quote instead of your private tasks.
+
+### Custom Todo Directory
+
+By default, the wallpaper looks for files in `src/data/todos`. You can change this by setting the `TODO_DIR` environment variable:
+
+1. Open `.env.local`
+2. Add `TODO_DIR=/path/to/your/todos` (can be absolute or relative to the project root)
 
 ### Shuffling Intervals
 By default, the wallpaper rotates between Yearly, Monthly, and Daily views every **10 seconds** (configurable in `api/wallpaper/route.tsx`).

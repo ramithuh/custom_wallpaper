@@ -124,24 +124,23 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                     marginTop: 60,
                     width: isWider ? '70%' : '90%',
                 }}>
-                    {['work', 'fitness', 'mind'].map(cat => {
-                        const category = cat as keyof CategorizedTodos;
-                        const tasks = categorizedTodos[category];
-                        if (tasks.length === 0) return null;
+                    {(['work', 'fitness', 'mind'] as const).map(cat => {
+                        const tasks = categorizedTodos[cat];
+                        if (!tasks || tasks.length === 0) return null;
 
                         const categoryColors = {
                             work: '#10b981',    // Emerald 500
                             fitness: '#f59e0b', // Amber 500
                             mind: '#0ea5e9'      // Sky 500
                         };
-                        const color = categoryColors[category];
+                        const color = categoryColors[cat];
 
                         return (
-                            <div key={category} style={{
+                            <div key={cat} style={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 width: '100%',
-                                marginBottom: category === 'mind' ? 0 : 40
+                                marginBottom: cat === 'mind' ? 0 : 40
                             }}>
                                 <div style={{
                                     display: 'flex',
@@ -153,7 +152,7 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                                     opacity: 0.9,
                                     textTransform: 'uppercase'
                                 }}>
-                                    {category}
+                                    {cat}
                                 </div>
                                 {tasks.map((t, i) => (
                                     <TodoItem key={i} t={t} color={color} isLast={i === tasks.length - 1} />
@@ -161,6 +160,43 @@ export const DayProgress: React.FC<DayProgressProps> = ({ date, width, height, q
                             </div>
                         );
                     })}
+
+                    {/* Rendering Notes inside the Todo Box */}
+                    {categorizedTodos?.notes && categorizedTodos.notes.length > 0 && (
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '100%',
+                            marginTop: 50,
+                            paddingTop: 40,
+                            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                fontSize: 24,
+                                fontWeight: 700,
+                                color: '#999999',
+                                letterSpacing: 2,
+                                marginBottom: 20,
+                                opacity: 0.8,
+                                textTransform: 'uppercase'
+                            }}>
+                                Notes
+                            </div>
+                            {categorizedTodos.notes.map((note, i) => (
+                                <div key={i} style={{
+                                    display: 'flex',
+                                    fontSize: 24,
+                                    fontWeight: 300,
+                                    color: '#cccccc',
+                                    marginBottom: 12,
+                                    lineHeight: '1.4',
+                                }}>
+                                    • {note}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 

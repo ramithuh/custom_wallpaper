@@ -31,7 +31,14 @@ export async function GET(req: NextRequest) {
     const debugDate = searchParams.get('debugDate');
 
     // Fetch todo completion data for Yearly/Monthly heatmap
-    const completionMap = await getTodoCompletionMap();
+    // Only if token matches environment variable
+    const tokenParam = searchParams.get('token');
+    const secretToken = process.env.WALLPAPER_TOKEN;
+
+    let completionMap = undefined;
+    if (secretToken && tokenParam === secretToken) {
+        completionMap = await getTodoCompletionMap();
+    }
 
     let now: Date;
     if (debugDate) {
@@ -115,7 +122,7 @@ export async function GET(req: NextRequest) {
             if (secretToken && tokenParam === secretToken) {
                 try {
                     const dateStr = formatDate(now, 'yyyy-MM-dd');
-                    const todoPath = path.join(process.cwd(), 'src/data/todos', `${dateStr}.md`);
+                    const todoPath = path.resolve(process.cwd(), process.env.TODO_DIR || 'src/data/todos', `${dateStr}.md`);
                     const content = await fs.readFile(todoPath, 'utf8');
 
                     const { tasks } = parseCategorizedContent(content);
